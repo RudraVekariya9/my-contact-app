@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "My Contact App",
+    "slug": "my-conatct-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0b74e5"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.myapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cc928e5d-f362-4159-bc46-f90b5ea48b31"
+      }
+    },
+    "owner": "rudra_vekariya",
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

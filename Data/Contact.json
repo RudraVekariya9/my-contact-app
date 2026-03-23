@@ -1,0 +1,266 @@
+[
+  {
+    "name": "Rudra Vekariya",
+    "role": "React Native Intern",
+    "phone": "9876543210",
+    "image": "https://randomuser.me/api/portraits/men/1.jpg"
+  },
+  {
+    "name": "Hemali Patel",
+    "role": "Frontend Developer",
+    "phone": "9876501234",
+    "image": "https://randomuser.me/api/portraits/women/2.jpg"
+  },
+  {
+    "name": "Jay Shah",
+    "role": "Backend Developer",
+    "phone": "9898989898",
+    "image": "https://randomuser.me/api/portraits/men/3.jpg"
+  },
+  {
+    "name": "Krisha Mehta",
+    "role": "UI/UX Designer",
+    "phone": "9012345678",
+    "image": "https://randomuser.me/api/portraits/women/4.jpg"
+  },
+  {
+    "name": "Neel Joshi",
+    "role": "Full Stack Developer",
+    "phone": "9988776655",
+    "image": "https://randomuser.me/api/portraits/men/5.jpg"
+  },
+  {
+    "name": "Priya Sharma",
+    "role": "App Developer",
+    "phone": "9090909090",
+    "image": "https://randomuser.me/api/portraits/women/6.jpg"
+  },
+  {
+    "name": "Amit Verma",
+    "role": "Software Engineer",
+    "phone": "9123456780",
+    "image": "https://randomuser.me/api/portraits/men/7.jpg"
+  },
+  {
+    "name": "Kavya Singh",
+    "role": "Project Manager",
+    "phone": "9087654321",
+    "image": "https://randomuser.me/api/portraits/women/8.jpg"
+  },
+  {
+    "name": "Arjun Desai",
+    "role": "DevOps Engineer",
+    "phone": "9876512345",
+    "image": "https://randomuser.me/api/portraits/men/9.jpg"
+  },
+  {
+    "name": "Sneha Trivedi",
+    "role": "QA Engineer",
+    "phone": "9823456710",
+    "image": "https://randomuser.me/api/portraits/women/10.jpg"
+  },
+  {
+    "name": "Manav Bhatt",
+    "role": "Data Analyst",
+    "phone": "9898012345",
+    "image": "https://randomuser.me/api/portraits/men/11.jpg"
+  },
+  {
+    "name": "Ishita Kapoor",
+    "role": "Product Designer",
+    "phone": "9765432109",
+    "image": "https://randomuser.me/api/portraits/women/12.jpg"
+  },
+  {
+    "name": "Rahul Nair",
+    "role": "Mobile App Tester",
+    "phone": "9011223344",
+    "image": "https://randomuser.me/api/portraits/men/13.jpg"
+  },
+  {
+    "name": "Meera Iyer",
+    "role": "Business Analyst",
+    "phone": "9988123456",
+    "image": "https://randomuser.me/api/portraits/women/14.jpg"
+  },
+  {
+    "name": "Yash Malhotra",
+    "role": "Cloud Engineer",
+    "phone": "9098765432",
+    "image": "https://randomuser.me/api/portraits/men/15.jpg"
+  },
+  {
+    "name": "Riya Choudhary",
+    "role": "HR Executive",
+    "phone": "9876001122",
+    "image": "https://randomuser.me/api/portraits/women/16.jpg"
+  },
+  {
+    "name": "Kunal Soni",
+    "role": "System Administrator",
+    "phone": "9345678123",
+    "image": "https://randomuser.me/api/portraits/men/17.jpg"
+  },
+  {
+    "name": "Ananya Rao",
+    "role": "Software Consultant",
+    "phone": "9456123789",
+    "image": "https://randomuser.me/api/portraits/women/18.jpg"
+  },
+  {
+  "name": "Aarav Sharma",
+  "role": "Android Developer",
+  "phone": "9000000001",
+  "image": "https://randomuser.me/api/portraits/men/19.jpg"
+},
+{
+  "name": "Bhavna Desai",
+  "role": "HR Manager",
+  "phone": "9000000002",
+  "image": "https://randomuser.me/api/portraits/women/20.jpg"
+},
+{
+  "name": "Chetan Patel",
+  "role": "QA Tester",
+  "phone": "9000000003",
+  "image": "https://randomuser.me/api/portraits/men/21.jpg"
+},
+{
+  "name": "Deepika Joshi",
+  "role": "UI Designer",
+  "phone": "9000000004",
+  "image": "https://randomuser.me/api/portraits/women/22.jpg"
+},
+{
+  "name": "Eshan Mehta",
+  "role": "Backend Engineer",
+  "phone": "9000000005",
+  "image": "https://randomuser.me/api/portraits/men/23.jpg"
+},
+{
+  "name": "Farah Khan",
+  "role": "Product Manager",
+  "phone": "9000000006",
+  "image": "https://randomuser.me/api/portraits/women/24.jpg"
+},
+{
+  "name": "Gaurav Shah",
+  "role": "Frontend Developer",
+  "phone": "9000000007",
+  "image": "https://randomuser.me/api/portraits/men/25.jpg"
+},
+{
+  "name": "Hina Trivedi",
+  "role": "Support Engineer",
+  "phone": "9000000008",
+  "image": "https://randomuser.me/api/portraits/women/26.jpg"
+},
+{
+  "name": "Irfan Sheikh",
+  "role": "DevOps Engineer",
+  "phone": "9000000009",
+  "image": "https://randomuser.me/api/portraits/men/27.jpg"
+},
+{
+  "name": "Jinal Shah",
+  "role": "Business Analyst",
+  "phone": "9000000010",
+  "image": "https://randomuser.me/api/portraits/women/28.jpg"
+},
+{
+  "name": "Karan Malhotra",
+  "role": "Software Engineer",
+  "phone": "9000000011",
+  "image": "https://randomuser.me/api/portraits/men/29.jpg"
+},
+{
+  "name": "Lavanya Iyer",
+  "role": "Data Scientist",
+  "phone": "9000000012",
+  "image": "https://randomuser.me/api/portraits/women/30.jpg"
+},
+{
+  "name": "Manish Verma",
+  "role": "Cloud Engineer",
+  "phone": "9000000013",
+  "image": "https://randomuser.me/api/portraits/men/31.jpg"
+},
+{
+  "name": "Nikita Singh",
+  "role": "UX Researcher",
+  "phone": "9000000014",
+  "image": "https://randomuser.me/api/portraits/women/32.jpg"
+},
+{
+  "name": "Omkar Kulkarni",
+  "role": "System Engineer",
+  "phone": "9000000015",
+  "image": "https://randomuser.me/api/portraits/men/33.jpg"
+},
+{
+  "name": "Pooja Mehta",
+  "role": "App Developer",
+  "phone": "9000000016",
+  "image": "https://randomuser.me/api/portraits/women/34.jpg"
+},
+{
+  "name": "Qasim Ali",
+  "role": "Security Analyst",
+  "phone": "9000000017",
+  "image": "https://randomuser.me/api/portraits/men/35.jpg"
+},
+{
+  "name": "Rakesh Kumar",
+  "role": "Team Lead",
+  "phone": "9000000018",
+  "image": "https://randomuser.me/api/portraits/men/36.jpg"
+},
+{
+  "name": "Snehal Patil",
+  "role": "QA Engineer",
+  "phone": "9000000019",
+  "image": "https://randomuser.me/api/portraits/women/37.jpg"
+},
+{
+  "name": "Tushar Jain",
+  "role": "Full Stack Developer",
+  "phone": "9000000020",
+  "image": "https://randomuser.me/api/portraits/men/38.jpg"
+},
+{
+  "name": "Urvashi Gupta",
+  "role": "HR Executive",
+  "phone": "9000000021",
+  "image": "https://randomuser.me/api/portraits/women/39.jpg"
+},
+{
+  "name": "Vikas Yadav",
+  "role": "Backend Developer",
+  "phone": "9000000022",
+  "image": "https://randomuser.me/api/portraits/men/40.jpg"
+},
+{
+  "name": "Waseem Khan",
+  "role": "Network Engineer",
+  "phone": "9000000023",
+  "image": "https://randomuser.me/api/portraits/men/41.jpg"
+},
+{
+  "name": "Xavier Dsouza",
+  "role": "iOS Developer",
+  "phone": "9000000024",
+  "image": "https://randomuser.me/api/portraits/men/42.jpg"
+},
+{
+  "name": "Yamini Reddy",
+  "role": "Product Designer",
+  "phone": "9000000025",
+  "image": "https://randomuser.me/api/portraits/women/43.jpg"
+},
+{
+  "name": "Zaid Ansari",
+  "role": "Software Tester",
+  "phone": "9000000026",
+  "image": "https://randomuser.me/api/portraits/men/44.jpg"
+}
+]
