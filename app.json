@@ -21,7 +21,9 @@
         "backgroundColor": "#0b74e5"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.myapp"
+      "package": "com.anonymous.myapp",
+      "googleServicesFile": "./google-services.json"
+      
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +35,9 @@
     },
     "owner": "rudra_vekariya",
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging"
     ]
   }
 }

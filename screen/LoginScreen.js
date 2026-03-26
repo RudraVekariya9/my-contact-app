@@ -5,6 +5,10 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { getFCMToken } from "../services/fcmService";
+
+import { db } from "../firebaseConfig";
+import { doc, setDoc } from "firebase/firestore"; // ✅ changed
 
 const LoginScreen = ({ navigation }) => {
 
@@ -13,13 +17,33 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigation.replace("App");
-    } catch (error) {
-      alert(error.message);
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+    console.log("LOGIN SUCCESS");
+
+    const token = await getFCMToken();
+    console.log("TOKEN:", token);
+
+    const user = userCredential.user;
+
+    if (token && user) {
+      await setDoc(
+        doc(db, "users", user.uid),
+        { fcmToken: token },
+        { merge: true }
+      );
+
+      console.log(" TOKEN SAVED");
+    } else {
+      console.log(" Token or user missing");
     }
-  };
+
+    navigation.replace("App");
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
   return (
     <KeyboardAvoidingView
