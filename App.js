@@ -6,11 +6,30 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import AuthStack from "./navigation/AuthStack";
 
 import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 
+import {
+  getMessaging,
+  onMessage,
+  requestPermission,
+  onNotificationOpenedApp,
+  getInitialNotification
+} from "@react-native-firebase/messaging";
 
-// 🔥 ADD THESE
-import messaging from "@react-native-firebase/messaging";
+import { getApp } from "@react-native-firebase/app";
 import { Alert } from "react-native";
+
+import { navigationRef, navigate } from "./navigationRef";
+
+// 🔔 EXPO NOTIFICATION HANDLER
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 // Prevent splash from auto hiding
 SplashScreen.preventAutoHideAsync();
@@ -19,8 +38,8 @@ export default function App() {
 
   const [appReady, setAppReady] = useState(false);
 
+  // 🟡 Splash handling
   useEffect(() => {
-
     const prepareApp = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -33,38 +52,85 @@ export default function App() {
     };
 
     prepareApp();
-
   }, []);
 
-  // 🔥 ADD THIS NEW useEffect (FCM FOREGROUND)
+  // 🔔 EXPO NOTIFICATION PERMISSION
   useEffect(() => {
-  const setupFCM = async () => {
-    try {
-      await messaging().requestPermission();
+    const requestExpoPermission = async () => {
+      if (Device.isDevice) {
+        const { status } = await Notifications.requestPermissionsAsync();
 
-      const unsubscribe = messaging().onMessage(async remoteMessage => {
-        console.log("📩 Foreground message:", JSON.stringify(remoteMessage));
-
-        if (remoteMessage?.notification) {
-          Alert.alert(
-            remoteMessage.notification.title || "Notification",
-            remoteMessage.notification.body || "You have a new message"
-          );
-        } else {
-          Alert.alert("Notification", "Message received");
+        if (status !== "granted") {
+          console.log("❌ Expo notification permission denied");
         }
-      });
+      }
+    };
 
-      return unsubscribe;
-    } catch (error) {
-      console.log("FCM Error:", error);
-    }
-  };
+    requestExpoPermission();
+  }, []);
 
-  setupFCM();
-}, []);
+  // 🔔 FCM FOREGROUND NOTIFICATIONS
+  useEffect(() => {
+    const setupFCM = async () => {
+      try {
+        const messagingInstance = getMessaging(getApp());
 
-  // While splash is showing
+        await requestPermission(messagingInstance);
+
+        onMessage(messagingInstance, async remoteMessage => {
+          console.log("📩 Foreground message:", remoteMessage);
+
+          if (remoteMessage?.notification) {
+            Alert.alert(
+              remoteMessage.notification.title,
+              remoteMessage.notification.body
+            );
+          }
+        });
+
+      } catch (error) {
+        console.log("FCM Error:", error);
+      }
+    };
+
+    setupFCM();
+  }, []);
+
+  // 🔔 FCM NOTIFICATION CLICK HANDLING
+  useEffect(() => {
+    const messagingInstance = getMessaging(getApp());
+
+    // App in background
+    const unsubscribe = onNotificationOpenedApp(
+      messagingInstance,
+      remoteMessage => {
+        console.log("🔔 Notification clicked (background):", remoteMessage);
+
+        const todoId = remoteMessage?.data?.todoId;
+
+        if (todoId) {
+          navigate("TodoScreen", { todoId });
+        }
+      }
+    );
+
+    // App closed
+    getInitialNotification(messagingInstance).then(remoteMessage => {
+      if (remoteMessage) {
+        console.log("🚀 Opened from quit state:", remoteMessage);
+
+        const todoId = remoteMessage?.data?.todoId;
+
+        if (todoId) {
+          navigate("TodoScreen", { todoId });
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // 🟡 Splash screen
   if (!appReady) {
     return null;
   }
@@ -72,7 +138,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <AuthStack />
         </NavigationContainer>
       </SafeAreaProvider>

@@ -8,7 +8,7 @@ import { auth } from "../firebaseConfig";
 import { getFCMToken } from "../services/fcmService";
 
 import { db } from "../firebaseConfig";
-import { doc, setDoc } from "firebase/firestore"; // ✅ changed
+import { doc, setDoc } from "firebase/firestore"; 
 
 const LoginScreen = ({ navigation }) => {
 
@@ -23,7 +23,7 @@ const LoginScreen = ({ navigation }) => {
     console.log("LOGIN SUCCESS");
 
     const token = await getFCMToken();
-    console.log("TOKEN:", token);
+    //console.log("TOKEN:", token);
 
     const user = userCredential.user;
 
@@ -147,6 +147,7 @@ const PasswordContainer = styled.View`
 const PasswordInput = styled.TextInput`
   flex: 1;
   padding: 12px;
+  color: black
 `;
 
 const EyeButton = styled.TouchableOpacity`

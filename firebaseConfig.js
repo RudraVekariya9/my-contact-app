@@ -2,19 +2,20 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC-6tJwnwJ0X-TmPmCQD6A4q2MYsbt_Jk0",
-  authDomain: "task-manager-app-8fc6a.firebaseapp.com",
-  projectId: "task-manager-app-8fc6a",
-  storageBucket: "task-manager-app-8fc6a.firebasestorage.app",
-  messagingSenderId: "493529142252",
-  appId: "1:493529142252:web:34f7f2fc59345d46ef66c9"
+  apiKey: process.env.EXPO_PUBLIC_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_APP_ID,
 };
 
 /* Prevent duplicate Firebase initialization */
 
-const app =
+const app = initializeApp(firebaseConfig);
   getApps().length === 0
     ? initializeApp(firebaseConfig)
     : getApp();

@@ -19,7 +19,7 @@ import AddTaskSheet from "../bottom/AddTaskSheet";
 import EditTaskSheet from "../bottom/EditTaskSheet";
 import DeleteTaskSheet from "../bottom/DeleteTaskSheet";
 import ActionPopup from "../popup/ActionPopup";
-
+import { scheduleTodoNotification } from "../../notificationHelper";
 const TodoHome = () => {
 
   const [task, setTask] = useState("");
@@ -141,28 +141,32 @@ const TodoHome = () => {
   /* TOGGLE TASK */
 
   const toggleTask = async (item) => {
+      try {
+        const user = auth.currentUser;
 
-    try {
+        const taskRef = doc(
+          db,
+          "users",
+          user.uid,
+          "tasks",
+          item.id
+        );
 
-      const user = auth.currentUser;
+        const newStatus = !item.completed;
 
-      const taskRef = doc(
-        db,
-        "users",
-        user.uid,
-        "tasks",
-        item.id
-      );
+        await updateDoc(taskRef, {
+          completed: newStatus
+        });
 
-      await updateDoc(taskRef, {
-        completed: !item.completed
-      });
+        // 🔔 Schedule notification after 5 min
+        if (newStatus) {
+          await scheduleTodoNotification(item.title);
+        }
 
-    } catch (error) {
-      console.log(error);
-    }
-
-  };
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
 
 
