@@ -1,12 +1,13 @@
 import React from "react";
 import styled from "styled-components/native";
 import Header from "../components/shared/Header";
-import ProfileDetail from "../components/profile/ProfileDetail";
-export default function ProfileScreen() {
+import NotificationHome from "../components/Notification/NotificationHome";
+
+export default function NotificationScreen() {
   return (
     <Container>
-      <Header title="Profile" showBack={false}/>
-         <ProfileDetail />
+      <Header title="Notifications" showBack={false}/>
+      <NotificationHome />
     </Container>
   );
 }

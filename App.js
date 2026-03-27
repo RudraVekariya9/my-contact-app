@@ -18,27 +18,31 @@ import {
 } from "@react-native-firebase/messaging";
 
 import { getApp } from "@react-native-firebase/app";
+import { getAuth } from "firebase/auth";
+
 import { Alert } from "react-native";
+import { navigationRef, navigate } from "./navigation/utils/navigationRef";
 
-import { navigationRef, navigate } from "./navigationRef";
+//  IMPORT THIS (NEW)
+import { saveNotification } from "./services/notifications/notificationStorage";
 
-// 🔔 EXPO NOTIFICATION HANDLER
+//  EXPO NOTIFICATION HANDLER
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
   }),
 });
 
-// Prevent splash from auto hiding
+// Prevent splash auto hide
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-
   const [appReady, setAppReady] = useState(false);
 
-  // 🟡 Splash handling
+  //  Splash
   useEffect(() => {
     const prepareApp = async () => {
       try {
@@ -54,7 +58,7 @@ export default function App() {
     prepareApp();
   }, []);
 
-  // 🔔 EXPO NOTIFICATION PERMISSION
+  //  Expo Permission
   useEffect(() => {
     const requestExpoPermission = async () => {
       if (Device.isDevice) {
@@ -69,7 +73,7 @@ export default function App() {
     requestExpoPermission();
   }, []);
 
-  // 🔔 FCM FOREGROUND NOTIFICATIONS
+  //  FCM FOREGROUND
   useEffect(() => {
     const setupFCM = async () => {
       try {
@@ -78,7 +82,7 @@ export default function App() {
         await requestPermission(messagingInstance);
 
         onMessage(messagingInstance, async remoteMessage => {
-          console.log("📩 Foreground message:", remoteMessage);
+          console.log(" Foreground message:", remoteMessage);
 
           if (remoteMessage?.notification) {
             Alert.alert(
@@ -87,7 +91,6 @@ export default function App() {
             );
           }
         });
-
       } catch (error) {
         console.log("FCM Error:", error);
       }
@@ -96,16 +99,13 @@ export default function App() {
     setupFCM();
   }, []);
 
-  // 🔔 FCM NOTIFICATION CLICK HANDLING
+  //  FCM CLICK HANDLING
   useEffect(() => {
     const messagingInstance = getMessaging(getApp());
 
-    // App in background
     const unsubscribe = onNotificationOpenedApp(
       messagingInstance,
       remoteMessage => {
-        console.log("🔔 Notification clicked (background):", remoteMessage);
-
         const todoId = remoteMessage?.data?.todoId;
 
         if (todoId) {
@@ -114,11 +114,8 @@ export default function App() {
       }
     );
 
-    // App closed
     getInitialNotification(messagingInstance).then(remoteMessage => {
       if (remoteMessage) {
-        console.log("🚀 Opened from quit state:", remoteMessage);
-
         const todoId = remoteMessage?.data?.todoId;
 
         if (todoId) {
@@ -130,10 +127,52 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // 🟡 Splash screen
-  if (!appReady) {
-    return null;
-  }
+  //  NEW: SAVE WHEN NOTIFICATION ARRIVES
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(
+      async (notification) => {
+        console.log(" Notification received → saving");
+
+        const data = notification.request.content;
+
+        await saveNotification({
+          title: data.title,
+          body: data.body,
+          time: new Date().toISOString(),
+        });
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
+
+  //  EXPO CLICK HANDLING + AUTH CHECK
+  useEffect(() => {
+    const subscription =
+      Notifications.addNotificationResponseReceivedListener(
+        (response) => {
+          console.log(" Notification clicked");
+
+          const data = response.notification.request.content.data;
+          const user = getAuth().currentUser;
+
+          if (user) {
+            if (data?.todoId) {
+              navigate("TodoScreen", { todoId: data.todoId });
+            } else {
+              navigate("Contacts");
+            }
+          } else {
+            navigate("Login");
+          }
+        }
+      );
+
+    return () => subscription.remove();
+  }, []);
+
+  //  Splash wait
+  if (!appReady) return null;
 
   return (
     <Provider store={store}>

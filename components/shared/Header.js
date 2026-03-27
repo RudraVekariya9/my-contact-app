@@ -5,13 +5,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import BackButton from "./BackButton";
-export default function Header({title}) {
+export default function Header({title, showBack = true}) {
   const navigation = useNavigation();
 
   return (
     <SafeContainer>
       <HeaderRow>
-        <BackButton/>
+        {showBack ? <BackButton /> : <RightSpace />}
             <Title>{title}</Title>
         <RightSpace />
       </HeaderRow>

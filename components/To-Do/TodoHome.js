@@ -19,7 +19,8 @@ import AddTaskSheet from "../bottom/AddTaskSheet";
 import EditTaskSheet from "../bottom/EditTaskSheet";
 import DeleteTaskSheet from "../bottom/DeleteTaskSheet";
 import ActionPopup from "../popup/ActionPopup";
-import { scheduleTodoNotification } from "../../notificationHelper";
+import { scheduleTodoNotification } from "../../services/notifications/notificationHelper";
+
 const TodoHome = () => {
 
   const [task, setTask] = useState("");

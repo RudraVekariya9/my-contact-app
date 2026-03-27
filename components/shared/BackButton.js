@@ -16,5 +16,4 @@ export default function BackButton({ color = "#ffffff" }) {
 
 const Button = styled(TouchableOpacity)`
   padding: 5px;
-  
 `;

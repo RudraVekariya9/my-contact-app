@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import { initializeApp } from "firebase/app";
+
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_API_KEY,
@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 /* Prevent duplicate Firebase initialization */
 
-const app = initializeApp(firebaseConfig);
+const app = 
   getApps().length === 0
     ? initializeApp(firebaseConfig)
     : getApp();
