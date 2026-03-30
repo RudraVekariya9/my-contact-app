@@ -4,6 +4,8 @@ import BottomTabs from "./BottomTabs";
 import AboutScreen from "../screen/AboutScreen";
 import HelpScreen from "../screen/HelpScreen";
 import TodoScreen from "../screen/TodoScreen";
+import SettingScreen from "../screen/SettingScreen";
+
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
@@ -25,6 +27,10 @@ export default function DrawerNavigator() {
       name="To-Do"
       component={TodoScreen}
     />
+    <Drawer.Screen
+        name="Settings"
+        component={SettingScreen}
+      />
       
     </Drawer.Navigator>
   );

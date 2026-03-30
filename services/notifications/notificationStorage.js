@@ -3,17 +3,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const KEY = "APP_NOTIFICATIONS";
 const UNREAD_KEY = "APP_UNREAD_COUNT";
 
-//  Save notification
+// 💾 Save notification
 export const saveNotification = async (notification) => {
   try {
     const existing = await AsyncStorage.getItem(KEY);
     const list = existing ? JSON.parse(existing) : [];
 
-    list.unshift(notification);
+    list.unshift({
+      ...notification,
+      isRead: false, // 🔥 NEW FIELD
+    });
 
     await AsyncStorage.setItem(KEY, JSON.stringify(list));
 
-    //  increase unread count
+    // 🔴 increase unread count
     const unread = await AsyncStorage.getItem(UNREAD_KEY);
     const count = unread ? parseInt(unread) : 0;
 
@@ -24,7 +27,7 @@ export const saveNotification = async (notification) => {
   }
 };
 
-//  Get all notifications
+// 📥 Get all notifications
 export const getNotifications = async () => {
   try {
     const data = await AsyncStorage.getItem(KEY);
@@ -35,7 +38,7 @@ export const getNotifications = async () => {
   }
 };
 
-//  Get unread count
+// 🔴 Get unread count
 export const getUnreadCount = async () => {
   try {
     const count = await AsyncStorage.getItem(UNREAD_KEY);
@@ -46,7 +49,7 @@ export const getUnreadCount = async () => {
   }
 };
 
-//  Reset unread count
+// 🔄 Reset unread count
 export const resetUnreadCount = async () => {
   try {
     await AsyncStorage.setItem(UNREAD_KEY, "0");
@@ -55,12 +58,31 @@ export const resetUnreadCount = async () => {
   }
 };
 
-//  Clear notifications
+// 🗑 Clear notifications
 export const clearNotifications = async () => {
   try {
     await AsyncStorage.removeItem(KEY);
     await AsyncStorage.setItem(UNREAD_KEY, "0");
   } catch (error) {
     console.log("Clear error:", error);
+  }
+};
+
+// 🔥 MARK ALL AS READ
+export const markAllAsRead = async () => {
+  try {
+    const data = await AsyncStorage.getItem(KEY);
+    const list = data ? JSON.parse(data) : [];
+
+    const updated = list.map(item => ({
+      ...item,
+      isRead: true,
+    }));
+
+    await AsyncStorage.setItem(KEY, JSON.stringify(updated));
+    await AsyncStorage.setItem(UNREAD_KEY, "0");
+
+  } catch (error) {
+    console.log("Mark read error:", error);
   }
 };

@@ -1,25 +1,27 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import styled from "styled-components/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 import BackButton from "./BackButton";
-export default function Header({title, showBack = true}) {
+
+export default function Header({ title, showBack = true }) {
   const navigation = useNavigation();
 
   return (
-    <SafeContainer>
-      <HeaderRow>
-        {showBack ? <BackButton /> : <RightSpace />}
-            <Title>{title}</Title>
-        <RightSpace />
-      </HeaderRow>
-    </SafeContainer>
+    <SafeAreaView style={{ backgroundColor: "#0b74e5" }}>
+      <Container>
+        <HeaderRow>
+          {showBack ? <BackButton /> : <RightSpace />}
+          <Title>{title}</Title>
+          <RightSpace />
+        </HeaderRow>
+      </Container>
+    </SafeAreaView>
   );
 }
 
-const SafeContainer = styled(SafeAreaView)`
+const Container = styled.View`
   background-color: #0b74e5;
 `;
 

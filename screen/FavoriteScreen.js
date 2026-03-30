@@ -6,9 +6,10 @@ import Header from "../components/shared/Header";
 import { ContactProvider } from "../context/ContactContext";
 
 export default function FavoriteScreen() {
+   
   return (
       <Container>
-        <Header title="Favorite" />
+        <Header title="Favorite" showBack={false} />
         <FavHome />
       </Container>
   );

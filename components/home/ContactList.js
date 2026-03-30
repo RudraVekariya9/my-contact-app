@@ -118,9 +118,12 @@ export default function ContactList() {
       {/* A-Z SIDEBAR */}
       <Sidebar>
         {alphabet.map((letter) => (
-          <Letter key={letter} onPress={() => scrollToLetter(letter)}>
-            {letter}
-          </Letter>
+          <TouchableOpacity
+            key={letter}
+            onPress={() => scrollToLetter(letter)}
+          >
+            <Letter>{letter}</Letter>
+          </TouchableOpacity>
         ))}
       </Sidebar>
 

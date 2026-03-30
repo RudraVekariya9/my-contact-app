@@ -7,6 +7,7 @@ import {
   getNotifications,
   resetUnreadCount,
   clearNotifications,
+  markAllAsRead,
 } from "../../services/notifications/notificationStorage";
 
 export default function NotificationHome() {
@@ -17,22 +18,29 @@ export default function NotificationHome() {
     setNotifications(data);
   };
 
+  //  CLEAR ALL
   const handleClearAll = () => {
-  Alert.alert(
-    "Clear All",
-    "Are you sure you want to delete all notifications?",
-    [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Yes",
-        onPress: async () => {
-          await clearNotifications();
-          setNotifications([]);
+    Alert.alert(
+      "Clear All",
+      "Are you sure you want to delete all notifications?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: async () => {
+            await clearNotifications();
+            setNotifications([]);
+          },
         },
-      },
-    ]
-  );
-};
+      ]
+    );
+  };
+
+  //  MARK ALL AS READ
+  const handleMarkAllRead = async () => {
+    await markAllAsRead();
+    loadNotifications();
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -43,21 +51,30 @@ export default function NotificationHome() {
 
   return (
     <ScrollContent showsVerticalScrollIndicator={false}>
-      
-      {/* Show button only if notifications exist */}
+
+      {/*  BUTTONS */}
       {notifications.length > 0 && (
-        <ClearButton onPress={handleClearAll}>
-          <ClearText>Clear All</ClearText>
-        </ClearButton>
+        <>
+          <ActionRow>
+            <ReadButton onPress={handleMarkAllRead}>
+              <ReadText>Mark All as Read</ReadText>
+            </ReadButton>
+
+            <ClearButton onPress={handleClearAll}>
+              <ClearText>Clear All</ClearText>
+            </ClearButton>
+          </ActionRow>
+        </>
       )}
 
+      {/*  LIST */}
       {notifications.length === 0 ? (
         <EmptyText>No notifications yet</EmptyText>
       ) : (
         notifications.map((item, index) => (
           <Card key={index}>
-            <Title>{item.title}</Title>
-            <Body>{item.body}</Body>
+            <Title isRead={item.isRead}>{item.title}</Title>
+            <Body isRead={item.isRead}>{item.body}</Body>
             <Time>
               {new Date(item.time).toLocaleString()}
             </Time>
@@ -74,11 +91,32 @@ const ScrollContent = styled(ScrollView)`
   padding: 20px;
 `;
 
+const ActionRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 15px;
+`;
+
+const ReadButton = styled.TouchableOpacity`
+  background-color: #888;
+  padding: 10px;
+  border-radius: 10px;
+  flex: 1;
+  margin-right: 5px;
+  align-items: center;
+`;
+
+const ReadText = styled.Text`
+  color: white;
+  font-weight: bold;
+`;
+
 const ClearButton = styled.TouchableOpacity`
   background-color: #0b74e5;
   padding: 10px;
   border-radius: 10px;
-  margin-bottom: 15px;
+  flex: 1;
+  margin-left: 5px;
   align-items: center;
 `;
 
@@ -99,13 +137,14 @@ const Card = styled.View`
 
 const Title = styled.Text`
   font-size: 15px;
-  font-weight: bold;
+  font-weight: ${({ isRead }) => (isRead ? "normal" : "bold")};
+  color: ${({ isRead }) => (isRead ? "#999" : "#000")};
   margin-bottom: 5px;
 `;
 
 const Body = styled.Text`
   font-size: 14px;
-  color: #333;
+  color: ${({ isRead }) => (isRead ? "#aaa" : "#333")};
   margin-bottom: 5px;
 `;
 

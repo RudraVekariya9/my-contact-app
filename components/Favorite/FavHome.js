@@ -47,7 +47,7 @@ export default function FavHome() {
             </InfoContainer>
 
             <RemoveButton onPress={() => confirmRemove(item.id)}>
-              <Ionicons name="trash-outline" size={22} color="#fffffff" />
+              <Ionicons name="trash-outline" size={22} color="#ffffff" />
             </RemoveButton>
 
           </Card>

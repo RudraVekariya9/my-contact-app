@@ -4,9 +4,11 @@ import Header from "../components/shared/Header";
 import NotificationHome from "../components/Notification/NotificationHome";
 
 export default function NotificationScreen() {
+  
+  
   return (
     <Container>
-      <Header title="Notifications" showBack={false}/>
+      <Header title="Notifications" />
       <NotificationHome />
     </Container>
   );
