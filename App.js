@@ -7,18 +7,17 @@ import AuthStack from "./navigation/AuthStack";
 
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // ✅ NEW
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import useNotificationHandler from "./services/notifications/notificationHandler";
 
-// 🔥 DYNAMIC NOTIFICATION CONTROL (MAIN CHANGE)
+// 🔔 NOTIFICATION CONTROL
 Notifications.setNotificationHandler({
   handleNotification: async () => {
     try {
       const value = await AsyncStorage.getItem("notificationsEnabled");
       const enabled = JSON.parse(value || "true");
 
-      // ❌ BLOCK NOTIFICATION
       if (!enabled) {
         return {
           shouldShowBanner: false,
@@ -28,7 +27,6 @@ Notifications.setNotificationHandler({
         };
       }
 
-      // ✅ ALLOW NOTIFICATION
       return {
         shouldShowBanner: true,
         shouldShowList: true,
@@ -37,7 +35,6 @@ Notifications.setNotificationHandler({
       };
 
     } catch {
-      // fallback → allow
       return {
         shouldShowBanner: true,
         shouldShowList: true,
@@ -53,7 +50,6 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [appReady, setAppReady] = useState(false);
 
-  // 🔥 Notification logic hook
   useNotificationHandler();
 
   useEffect(() => {
