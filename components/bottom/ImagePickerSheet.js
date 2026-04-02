@@ -31,7 +31,7 @@ export default function ImagePickerSheet({
         </HeaderRow>
 
 
-        {/* CAMERA */}
+        
         <Option onPress={onCamera}>
         <Row>
             <Icon source={require("../../assets/icons/camera.png")} />
@@ -42,7 +42,7 @@ export default function ImagePickerSheet({
         <Divider />
 
 
-        {/* GALLERY */}
+        
         <Option onPress={onGallery}>
         <Row>
             <Icon source={require("../../assets/icons/gallery.png")} />
@@ -53,7 +53,7 @@ export default function ImagePickerSheet({
         <Divider />
 
 
-        {/* AVATAR */}
+      
         <Option onPress={onAvatar}>
         <Row>
             <Icon source={require("../../assets/icons/avatar.png")} />

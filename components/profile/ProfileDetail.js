@@ -15,6 +15,7 @@ import { avatars } from "../../Data/avatars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library"; // ✅ NEW
 
 export default function ProfileDetail() {
 
@@ -35,6 +36,7 @@ export default function ProfileDetail() {
     loadUser();
     loadSavedAvatar();
     loadCustomImage();
+    requestGalleryPermission();
   }, []);
 
   const loadUser = async () => {
@@ -86,22 +88,65 @@ export default function ProfileDetail() {
     }
   };
 
-  // 🖼️ GALLERY (permission handled here if denied)
-  const pickFromGallery = async () => {
+  // ✅ CAMERA (fixed mediaTypes)
+  const openCamera = async () => {
     try {
-      const permission = await ImagePicker.getMediaLibraryPermissionsAsync();
+      const request = await ImagePicker.requestCameraPermissionsAsync();
 
-      if (permission.status !== "granted") {
-        const request = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (request.status !== "granted") {
-          alert("Permission required to access gallery");
-          return;
-        }
+      if (request.status !== "granted") {
+        alert("Permission required to use camera");
+        return;
       }
 
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes:  ['images'],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const uri = result.assets[0].uri;
+
+        setCustomImage(uri);
+        setSelectedAvatarIndex(null);
+
+        const user = auth.currentUser;
+        const key = `profile_image_${user.uid}`;
+
+        await AsyncStorage.setItem(key, uri);
+      }
+
+      setShowSheet(false);
+
+    } catch (error) {
+      console.log("Camera error:", error);
+    }
+  };
+
+  // ✅ NEW: FULL PERMISSION FUNCTION
+  const requestGalleryPermission = async () => {
+  const { status } = await MediaLibrary.requestPermissionsAsync();
+
+  if (status !== "granted") {
+    alert("Permission required");
+    return false;
+  }
+
+  //  FORCE actual usage
+  await MediaLibrary.getAssetsAsync({
+    first: 1,
+  });
+
+  return true;
+};
+
+  // ✅ GALLERY (UPDATED)
+  const pickFromGallery = async () => {
+    try {
+      const hasPermission = await requestGalleryPermission();
+      if (!hasPermission) return;
+
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
+        mediaTypes: ['images'],
         quality: 1,
       });
 
@@ -145,7 +190,6 @@ export default function ProfileDetail() {
     }
   };
 
-  // 🗑️ REMOVE WITH POPUP
   const handleRemovePhoto = async () => {
     try {
       const user = auth.currentUser;
@@ -192,7 +236,6 @@ export default function ProfileDetail() {
       </TouchableOpacity>
 
       <Content>
-
         <FieldBox>
           <Label>Name</Label>
           <Value>{name}</Value>
@@ -206,7 +249,6 @@ export default function ProfileDetail() {
         <LogoutButton onPress={() => setLogoutPopup(true)}>
           <LogoutText>Logout</LogoutText>
         </LogoutButton>
-
       </Content>
 
       <ImagePickerSheet
@@ -215,6 +257,7 @@ export default function ProfileDetail() {
         onGallery={pickFromGallery}
         onAvatar={pickAvatar}
         onRemove={() => setRemovePopup(true)}
+        onCamera={openCamera}
       />
 
       <AvatarPickerSheet
@@ -245,8 +288,6 @@ export default function ProfileDetail() {
     </Container>
   );
 }
-
-
 /* ---------- STYLES ---------- */
 
 const Container = styled.View`

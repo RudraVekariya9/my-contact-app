@@ -80,12 +80,19 @@ export const ContactProvider = ({ children }) => {
 
   /* ---------------- SEARCH CONTACTS ---------------- */
 
-  useEffect(() => {
-    const filtered = contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(searchTerm.toLowerCase())
+ useEffect(() => {
+  const filtered = contacts.filter((contact) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      contact.name?.toLowerCase().includes(search) ||
+      contact.phone?.toLowerCase().includes(search) ||
+      contact.role?.toLowerCase().includes(search)
     );
-    setFilteredContacts(filtered);
-  }, [searchTerm, contacts]);
+  });
+
+  setFilteredContacts(filtered);
+}, [searchTerm, contacts]);
 
   /* ---------------- CONTEXT VALUE ---------------- */
 

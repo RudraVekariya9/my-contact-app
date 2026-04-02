@@ -8,42 +8,43 @@ import { auth } from "../firebaseConfig";
 import { getFCMToken } from "../services/fcmService";
 
 import { db } from "../firebaseConfig";
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc } from "firebase/firestore";
 
 const LoginScreen = ({ navigation }) => {
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-    console.log("LOGIN SUCCESS");
-
-    const token = await getFCMToken();
-    //console.log("TOKEN:", token);
-
-    const user = userCredential.user;
-
-    if (token && user) {
-      await setDoc(
-        doc(db, "users", user.uid),
-        { fcmToken: token },
-        { merge: true }
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
       );
 
-      console.log(" TOKEN SAVED");
-    } else {
-      console.log(" Token or user missing");
-    }
+      console.log("LOGIN SUCCESS");
 
-    navigation.replace("App");
-  } catch (error) {
-    alert(error.message);
-  }
-};
+      const token = await getFCMToken();
+      const user = userCredential.user;
+
+      if (token && user) {
+        await setDoc(
+          doc(db, "users", user.uid),
+          { fcmToken: token },
+          { merge: true }
+        );
+
+        console.log("TOKEN SAVED");
+      }
+
+      navigation.replace("App");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -55,13 +56,15 @@ const LoginScreen = ({ navigation }) => {
         contentContainerStyle={{
           flexGrow: 1,
           justifyContent: "center",
-          backgroundColor: "#e6f2ff"
+          backgroundColor: "#e6f2ff",
         }}
       >
         <Container>
           <Card>
-
             <Title>Login</Title>
+
+            {/* ORIGINAL STATIC TEXT */}
+            <Subtitle>Hello</Subtitle>
 
             <Label>Email</Label>
             <Input
@@ -78,7 +81,11 @@ const LoginScreen = ({ navigation }) => {
                 onChangeText={setPassword}
               />
               <EyeButton onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#0b74e5" />
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={20}
+                  color="#0b74e5"
+                />
               </EyeButton>
             </PasswordContainer>
 
@@ -89,7 +96,6 @@ const LoginScreen = ({ navigation }) => {
             <SwitchText onPress={() => navigation.navigate("Signup")}>
               Create new account
             </SwitchText>
-
           </Card>
         </Container>
       </ScrollView>
@@ -98,7 +104,6 @@ const LoginScreen = ({ navigation }) => {
 };
 
 export default LoginScreen;
-
 
 /* styles */
 
@@ -119,9 +124,16 @@ const Card = styled.View`
 const Title = styled.Text`
   font-size: 28px;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   font-weight: bold;
   color: #0b74e5;
+`;
+
+const Subtitle = styled.Text`
+  text-align: center;
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
 `;
 
 const Label = styled.Text`
@@ -147,7 +159,7 @@ const PasswordContainer = styled.View`
 const PasswordInput = styled.TextInput`
   flex: 1;
   padding: 12px;
-  color: black
+  color: black;
 `;
 
 const EyeButton = styled.TouchableOpacity`

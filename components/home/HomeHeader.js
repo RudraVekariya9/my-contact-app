@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // ✅ NEW
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useContactContext } from "../../context/ContactContext";
 import { getUnreadCount } from "../../services/notifications/notificationStorage";
 
@@ -17,9 +17,9 @@ export default function HomeHeader() {
   const navigation = useNavigation();
   const { searchTerm, setSearchTerm } = useContactContext();
 
-  const [count, setCount] = useState(0); // ✅ BADGE COUNT
+  const [count, setCount] = useState(0); //  BADGE COUNT
 
-  // 🔹 Load notification count
+  //  Load notification count
   useEffect(() => {
   const loadCount = async () => {
     try {
@@ -56,7 +56,7 @@ export default function HomeHeader() {
           {/* Title */}
           <Text style={styles.title}>My Contact App</Text>
 
-          {/* 🔔 Notifications with Badge */}
+          {/*  Notifications with Badge */}
           <TouchableOpacity
             onPress={() => navigation.navigate("NotificationScreen")}
           >

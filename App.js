@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import useNotificationHandler from "./services/notifications/notificationHandler";
 
-// 🔔 NOTIFICATION CONTROL
+//  NOTIFICATION CONTROL
 Notifications.setNotificationHandler({
   handleNotification: async () => {
     try {
