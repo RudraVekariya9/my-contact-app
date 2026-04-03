@@ -9,6 +9,11 @@ import { getFCMToken } from "../services/fcmService";
 
 import { db } from "../firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
+import { getRemoteConfig, fetchAndActivate, getValue, setDefaults, setConfigSettings } from '@react-native-firebase/remote-config';
+import { app } from "../firebaseConfig";
+import { useEffect } from "react";
+import { getAnalytics, logEvent } from '@react-native-firebase/analytics';
+
 
 const LoginScreen = ({ navigation }) => {
 
@@ -16,8 +21,42 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [remoteText, setRemoteText] = useState("Hello");
+
+
+  useEffect(() => {
+  const loadRemote = async () => {
+    try {
+      console.log("Fetching Remote Config...");
+
+      const rc = getRemoteConfig(app);
+
+      await setDefaults(rc, {
+        login_text: "Hello",
+      });
+
+      await setConfigSettings(rc, {
+        minimumFetchIntervalMillis: 0,
+      });
+
+      const activated = await fetchAndActivate(rc);
+      console.log("Activated:", activated);
+
+      const value = getValue(rc, "login_text").asString();
+      console.log("Remote Value:", value);
+
+      setRemoteText(value);
+    } catch (e) {
+      console.log("Remote Config Error:", e);
+    }
+  };
+
+  loadRemote();
+}, []);
+
 
   const handleLogin = async () => {
+
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -26,6 +65,10 @@ const LoginScreen = ({ navigation }) => {
       );
 
       console.log("LOGIN SUCCESS");
+
+      const analyticsInstance = getAnalytics(app);
+
+await logEvent(analyticsInstance, 'login_success');
 
       const token = await getFCMToken();
       const user = userCredential.user;
@@ -64,7 +107,7 @@ const LoginScreen = ({ navigation }) => {
             <Title>Login</Title>
 
             {/* ORIGINAL STATIC TEXT */}
-            <Subtitle>Hello</Subtitle>
+            <Subtitle>{remoteText}</Subtitle>
 
             <Label>Email</Label>
             <Input
