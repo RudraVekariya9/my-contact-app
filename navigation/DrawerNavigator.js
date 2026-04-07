@@ -6,6 +6,7 @@ import HelpScreen from "../screen/HelpScreen";
 import TodoScreen from "../screen/TodoScreen";
 import SettingScreen from "../screen/SettingScreen";
 import ScanScreen from "../screen/ScanScreen";
+import PaginationScreen from "../screen/PaginationScreen"; // Import Pagination Screen
 
 const Drawer = createDrawerNavigator();
 
@@ -33,6 +34,11 @@ export default function DrawerNavigator() {
         component={SettingScreen}
       />
       <Drawer.Screen name="Scan" component={ScanScreen} />
+
+      <Drawer.Screen 
+        name="Pagination" 
+        component={PaginationScreen} // Added Drawer Screen
+      />
     </Drawer.Navigator>
   );
 }

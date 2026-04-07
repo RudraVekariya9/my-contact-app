@@ -1,33 +1,34 @@
 import React from "react";
 import styled from "styled-components/native";
 import BottomSheet from "./BottomSheet";
-import { Image, TouchableOpacity } from "react-native";
+import { Image } from "react-native";
 import { avatars } from "../../Data/avatars";
 
-export default function AvatarPickerSheet({ visible, onClose, onSelect, selectedIndex }) {
-
+export default function AvatarPickerSheet({
+  visible,
+  onClose,
+  onSelect,
+  selectedIndex,
+  isNested, // Receive the prop
+}) {
   return (
-    <BottomSheet visible={visible} closeSheet={onClose}>
-
+    <BottomSheet visible={visible} closeSheet={onClose} isNested={isNested}>
       <Title>Select Avatar</Title>
 
       <Grid>
         {avatars.map((avatar, index) => (
-        <AvatarItem
+          <AvatarItem
             key={index}
             onPress={() => onSelect(index)}
-            isSelected={index === selectedIndex} 
-        >
+            isSelected={index === selectedIndex}
+          >
             <AvatarImage source={avatar} />
-        </AvatarItem>
+          </AvatarItem>
         ))}
       </Grid>
-
     </BottomSheet>
   );
 }
-
-/* styles */
 
 const Title = styled.Text`
   font-size: 18px;
@@ -45,10 +46,12 @@ const AvatarItem = styled.TouchableOpacity`
   width: 30%;
   margin-bottom: 15px;
   border-width: 3px;
-  border-color: ${props => props.isSelected ? "#0b74e5" : "transparent"};
+  border-color: ${(props) =>
+    props.isSelected ? "#0b74e5" : "transparent"};
   border-radius: 50px;
   padding: 3px;
 `;
+
 const AvatarImage = styled(Image)`
   width: 100%;
   height: 100px;

@@ -8,6 +8,7 @@ import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
 
 import { useNavigation } from "@react-navigation/native";
+
 import ImagePickerSheet from "../bottom/ImagePickerSheet";
 import AvatarPickerSheet from "../bottom/AvatarPickerSheet";
 
@@ -15,14 +16,14 @@ import { avatars } from "../../Data/avatars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as ImagePicker from "expo-image-picker";
-import * as MediaLibrary from "expo-media-library"; // ✅ NEW
+import * as MediaLibrary from "expo-media-library";
 
 export default function ProfileDetail() {
-
   const navigation = useNavigation();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+
   const [logoutPopup, setLogoutPopup] = useState(false);
   const [removePopup, setRemovePopup] = useState(false);
 
@@ -41,194 +42,102 @@ export default function ProfileDetail() {
 
   const loadUser = async () => {
     const user = auth.currentUser;
-
     if (user) {
       setEmail(user.email || "");
-
       try {
         const profile = await getUserProfile();
         setName(profile ? profile.username : "No Name");
-      } catch (error) {
-        console.log("Profile fetch error:", error);
+      } catch {
         setName("Error loading name");
       }
     }
   };
 
   const loadSavedAvatar = async () => {
-    try {
-      const user = auth.currentUser;
-      const key = `avatar_${user.uid}`;
-
-      const saved = await AsyncStorage.getItem(key);
-
-      if (saved !== null) {
-        setSelectedAvatarIndex(parseInt(saved));
-      } else {
-        setSelectedAvatarIndex(0);
-        await AsyncStorage.setItem(key, "0");
-      }
-
-    } catch (error) {
-      console.log("Error loading avatar:", error);
+    const user = auth.currentUser;
+    const key = `avatar_${user.uid}`;
+    const saved = await AsyncStorage.getItem(key);
+    if (saved !== null) {
+      setSelectedAvatarIndex(parseInt(saved));
+    } else {
+      setSelectedAvatarIndex(0);
+      await AsyncStorage.setItem(key, "0");
     }
   };
 
   const loadCustomImage = async () => {
-    try {
-      const user = auth.currentUser;
-      const key = `profile_image_${user.uid}`;
-
-      const saved = await AsyncStorage.getItem(key);
-
-      if (saved) setCustomImage(saved);
-
-    } catch (error) {
-      console.log("Load image error:", error);
-    }
+    const user = auth.currentUser;
+    const key = `profile_image_${user.uid}`;
+    const saved = await AsyncStorage.getItem(key);
+    if (saved) setCustomImage(saved);
   };
 
-  // ✅ CAMERA (fixed mediaTypes)
-  const openCamera = async () => {
-    try {
-      const request = await ImagePicker.requestCameraPermissionsAsync();
-
-      if (request.status !== "granted") {
-        alert("Permission required to use camera");
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes:  ['images'],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const uri = result.assets[0].uri;
-
-        setCustomImage(uri);
-        setSelectedAvatarIndex(null);
-
-        const user = auth.currentUser;
-        const key = `profile_image_${user.uid}`;
-
-        await AsyncStorage.setItem(key, uri);
-      }
-
-      setShowSheet(false);
-
-    } catch (error) {
-      console.log("Camera error:", error);
-    }
-  };
-
-  // ✅ NEW: FULL PERMISSION FUNCTION
   const requestGalleryPermission = async () => {
-  const { status } = await MediaLibrary.requestPermissionsAsync();
-
-  if (status !== "granted") {
-    alert("Permission required");
-    return false;
-  }
-
-  //  FORCE actual usage
-  await MediaLibrary.getAssetsAsync({
-    first: 1,
-  });
-
-  return true;
-};
-
-  // ✅ GALLERY (UPDATED)
-  const pickFromGallery = async () => {
-    try {
-      const hasPermission = await requestGalleryPermission();
-      if (!hasPermission) return;
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const uri = result.assets[0].uri;
-
-        setCustomImage(uri);
-        setSelectedAvatarIndex(null);
-
-        const user = auth.currentUser;
-        const key = `profile_image_${user.uid}`;
-
-        await AsyncStorage.setItem(key, uri);
-      }
-
-      setShowSheet(false);
-
-    } catch (error) {
-      console.log("Gallery error:", error);
-    }
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    return status === "granted";
   };
 
-  const pickAvatar = () => {
+  const openCamera = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (permission.status !== "granted") return;
+
+    const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setCustomImage(uri);
+      setSelectedAvatarIndex(null);
+      await AsyncStorage.setItem(`profile_image_${auth.currentUser.uid}`, uri);
+    }
     setShowSheet(false);
-    setAvatarSheet(true);
+  };
+
+  const pickFromGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setCustomImage(uri);
+      setSelectedAvatarIndex(null);
+      await AsyncStorage.setItem(`profile_image_${auth.currentUser.uid}`, uri);
+    }
+    setShowSheet(false);
+  };
+
+  // UPDATED: STACKED BOTTOM SHEET LOGIC
+  const pickAvatar = () => {
+    // We do NOT call setShowSheet(false) so it stays open in the background
+    setAvatarSheet(true); 
   };
 
   const handleAvatarSelect = async (index) => {
-    try {
-      const user = auth.currentUser;
-      const key = `avatar_${user.uid}`;
+    const user = auth.currentUser;
+    setSelectedAvatarIndex(index);
+    setCustomImage(null);
+    await AsyncStorage.setItem(`avatar_${user.uid}`, index.toString());
 
-      setSelectedAvatarIndex(index);
-      setCustomImage(null);
-
-      await AsyncStorage.setItem(key, index.toString());
-
-      setAvatarSheet(false);
-    } catch (error) {
-      console.log("Error saving avatar:", error);
-    }
+    setAvatarSheet(false); // Close the top sheet
+    setShowSheet(false);   // Also close the background sheet after selection
   };
 
   const handleRemovePhoto = async () => {
-    try {
-      const user = auth.currentUser;
-
-      setCustomImage(null);
-      setSelectedAvatarIndex(0);
-
-      await AsyncStorage.removeItem(`profile_image_${user.uid}`);
-      await AsyncStorage.setItem(`avatar_${user.uid}`, "0");
-
-      setRemovePopup(false);
-      setShowSheet(false);
-    } catch (error) {
-      console.log("Remove error:", error);
-    }
+    const user = auth.currentUser;
+    setCustomImage(null);
+    setSelectedAvatarIndex(0);
+    await AsyncStorage.removeItem(`profile_image_${user.uid}`);
+    await AsyncStorage.setItem(`avatar_${user.uid}`, "0");
+    setRemovePopup(false);
+    setShowSheet(false);
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigation.navigate("Login");
-    } catch (error) {
-      console.log("Logout error:", error);
-    }
+    await signOut(auth);
+    navigation.navigate("Login");
   };
 
   return (
     <Container>
-
       <Header />
-
       <AvatarContainer>
-        <Avatar
-          source={
-            customImage
-              ? { uri: customImage }
-              : avatars[selectedAvatarIndex]
-          }
-        />
+        <Avatar source={customImage ? { uri: customImage } : avatars[selectedAvatarIndex]} />
       </AvatarContainer>
 
       <TouchableOpacity onPress={() => setShowSheet(true)}>
@@ -236,21 +145,12 @@ export default function ProfileDetail() {
       </TouchableOpacity>
 
       <Content>
-        <FieldBox>
-          <Label>Name</Label>
-          <Value>{name}</Value>
-        </FieldBox>
-
-        <FieldBox>
-          <Label>Email</Label>
-          <Value>{email}</Value>
-        </FieldBox>
-
-        <LogoutButton onPress={() => setLogoutPopup(true)}>
-          <LogoutText>Logout</LogoutText>
-        </LogoutButton>
+        <FieldBox><Label>Name</Label><Value>{name}</Value></FieldBox>
+        <FieldBox><Label>Email</Label><Value>{email}</Value></FieldBox>
+        <LogoutButton onPress={() => setLogoutPopup(true)}><LogoutText>Logout</LogoutText></LogoutButton>
       </Content>
 
+      {/* BACKGROUND SHEET */}
       <ImagePickerSheet
         visible={showSheet}
         onClose={() => setShowSheet(false)}
@@ -260,35 +160,20 @@ export default function ProfileDetail() {
         onCamera={openCamera}
       />
 
+      {/* TOP SHEET (Stacked) */}
       <AvatarPickerSheet
         visible={avatarSheet}
         onClose={() => setAvatarSheet(false)}
         onSelect={handleAvatarSelect}
         selectedIndex={selectedAvatarIndex}
+        isNested={true} // Only this sheet gets the transparent overlay
       />
 
-      <ActionPopup
-        visible={logoutPopup}
-        message="Are you sure you want to logout?"
-        confirmText="Logout"
-        cancelText="Cancel"
-        onConfirm={handleLogout}
-        onClose={() => setLogoutPopup(false)}
-      />
-
-      <ActionPopup
-        visible={removePopup}
-        message="Remove profile photo?"
-        confirmText="Remove"
-        cancelText="Cancel"
-        onConfirm={handleRemovePhoto}
-        onClose={() => setRemovePopup(false)}
-      />
-
+      <ActionPopup visible={logoutPopup} message="Logout?" confirmText="Logout" onConfirm={handleLogout} onClose={() => setLogoutPopup(false)} />
+      <ActionPopup visible={removePopup} message="Remove photo?" confirmText="Remove" onConfirm={handleRemovePhoto} onClose={() => setRemovePopup(false)} />
     </Container>
   );
 }
-/* ---------- STYLES ---------- */
 
 const Container = styled.View`
   flex: 1;
@@ -304,7 +189,6 @@ const Header = styled.View`
 
 const AvatarContainer = styled.View`
   margin-top: -50px;
-  margin-bottom: 10px;
   width: 120px;
   height: 120px;
   border-radius: 60px;
@@ -324,7 +208,6 @@ const EditText = styled.Text`
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 15px;
-  text-align: center;
 `;
 
 const Content = styled.View`
@@ -349,7 +232,6 @@ const Value = styled.Text`
   font-size: 18px;
   font-weight: 600;
   margin-top: 5px;
-  color: #000;
 `;
 
 const LogoutButton = styled.TouchableOpacity`

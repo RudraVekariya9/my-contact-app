@@ -10,61 +10,54 @@ export default function ImagePickerSheet({
   onCamera,
   onGallery,
   onAvatar,
-   onRemove,
+  onRemove,
 }) {
   return (
     <BottomSheet visible={visible} closeSheet={onClose}>
 
-        {/* HEADER */}
-        <HeaderRow>
+      {/* HEADER */}
+      <HeaderRow>
 
         <IconButton onPress={onClose}>
-            <Ionicons name="close" size={26} color="#000" />
+          <Ionicons name="close" size={26} color="#000" />
         </IconButton>
 
         <Title>Profile Picture</Title>
 
         <IconButton onPress={onRemove}>
-            <MaterialIcons name="delete-outline" size={26} color="#ff3b30" />
+          <MaterialIcons name="delete-outline" size={26} color="#ff3b30" />
         </IconButton>
 
-        </HeaderRow>
+      </HeaderRow>
 
-
-        
-        <Option onPress={onCamera}>
+      <Option onPress={onCamera}>
         <Row>
-            <Icon source={require("../../assets/icons/camera.png")} />
-            <Text>Camera</Text>
+          <Icon source={require("../../assets/icons/camera.png")} />
+          <Text>Camera</Text>
         </Row>
-        </Option>
+      </Option>
 
-        <Divider />
+      <Divider />
 
-
-        
-        <Option onPress={onGallery}>
+      <Option onPress={onGallery}>
         <Row>
-            <Icon source={require("../../assets/icons/gallery.png")} />
-            <Text>Gallery</Text>
+          <Icon source={require("../../assets/icons/gallery.png")} />
+          <Text>Gallery</Text>
         </Row>
-        </Option>
+      </Option>
 
-        <Divider />
+      <Divider />
 
-
-      
-        <Option onPress={onAvatar}>
+      <Option onPress={onAvatar}>
         <Row>
-            <Icon source={require("../../assets/icons/avatar.png")} />
-            <Text>Avatar</Text>
+          <Icon source={require("../../assets/icons/avatar.png")} />
+          <Text>Avatar</Text>
         </Row>
-        </Option>
+      </Option>
 
     </BottomSheet>
-    );
+  );
 }
-
 
 /* ---------- STYLES ---------- */
 
@@ -83,9 +76,7 @@ const Title = styled.Text`
 const IconButton = styled.TouchableOpacity`
   padding: 5px;
   border-radius: 20px;
-
 `;
-
 
 const Option = styled.TouchableOpacity`
   padding: 15px 0;
@@ -99,7 +90,7 @@ const Row = styled.View`
 const Icon = styled(Image)`
   width: 30px;
   height: 30px;
-  margin-right: 10px;  /* increased spacing */
+  margin-right: 10px;
 `;
 
 const Text = styled.Text`
