@@ -3,7 +3,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 
 /* CREATE PROFILE */
 
-export const createUserProfile = async (user, username, email) => {
+export const createUserProfile = async (user, username, email, address) => {
 
   if (!user) {
     console.log("No user found");
@@ -13,12 +13,15 @@ export const createUserProfile = async (user, username, email) => {
   try {
     await setDoc(doc(db, "users", user.uid), {
       username: username,
-      email: email
+      email: email,
+      address: address, // This will store street, city, state, and pincode
+      createdAt: new Date().toISOString()
     });
 
-    console.log("Profile saved!");
+    console.log("Profile saved! with address!");
   } catch (error) {
     console.log("Create profile error:", error);
+    throw error;
   }
 };
 

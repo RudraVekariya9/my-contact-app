@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
-import { Image, TouchableOpacity } from "react-native";
+import { Image, TouchableOpacity, ScrollView } from "react-native"; // Added ScrollView
 import ActionPopup from "../popup/ActionPopup";
+import { Ionicons } from "@expo/vector-icons"; // Added for icons
 
 import { getUserProfile } from "../../services/profileApi";
 import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
-
 import { useNavigation } from "@react-navigation/native";
 
 import ImagePickerSheet from "../bottom/ImagePickerSheet";
 import AvatarPickerSheet from "../bottom/AvatarPickerSheet";
-
 import { avatars } from "../../Data/avatars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -23,13 +22,14 @@ export default function ProfileDetail() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  
+  // New State for Address
+  const [address, setAddress] = useState(null);
 
   const [logoutPopup, setLogoutPopup] = useState(false);
   const [removePopup, setRemovePopup] = useState(false);
-
   const [showSheet, setShowSheet] = useState(false);
   const [avatarSheet, setAvatarSheet] = useState(false);
-
   const [selectedAvatarIndex, setSelectedAvatarIndex] = useState(null);
   const [customImage, setCustomImage] = useState(null);
 
@@ -46,13 +46,20 @@ export default function ProfileDetail() {
       setEmail(user.email || "");
       try {
         const profile = await getUserProfile();
-        setName(profile ? profile.username : "No Name");
-      } catch {
-        setName("Error loading name");
+        if (profile) {
+          setName(profile.username);
+          setAddress(profile.address); // Extract address object from Firestore
+        } else {
+          setName("No Name");
+        }
+      } catch (error) {
+        setName("Error loading profile");
+        console.log(error);
       }
     }
   };
 
+  // ... (Your existing loadSavedAvatar, loadCustomImage, openCamera, etc. functions stay exactly the same)
   const loadSavedAvatar = async () => {
     const user = auth.currentUser;
     const key = `avatar_${user.uid}`;
@@ -80,7 +87,6 @@ export default function ProfileDetail() {
   const openCamera = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (permission.status !== "granted") return;
-
     const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
     if (!result.canceled) {
       const uri = result.assets[0].uri;
@@ -102,20 +108,15 @@ export default function ProfileDetail() {
     setShowSheet(false);
   };
 
-  // UPDATED: STACKED BOTTOM SHEET LOGIC
-  const pickAvatar = () => {
-    // We do NOT call setShowSheet(false) so it stays open in the background
-    setAvatarSheet(true); 
-  };
+  const pickAvatar = () => { setAvatarSheet(true); };
 
   const handleAvatarSelect = async (index) => {
     const user = auth.currentUser;
     setSelectedAvatarIndex(index);
     setCustomImage(null);
     await AsyncStorage.setItem(`avatar_${user.uid}`, index.toString());
-
-    setAvatarSheet(false); // Close the top sheet
-    setShowSheet(false);   // Also close the background sheet after selection
+    setAvatarSheet(false);
+    setShowSheet(false);
   };
 
   const handleRemovePhoto = async () => {
@@ -130,72 +131,94 @@ export default function ProfileDetail() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    navigation.navigate("Login");
+    navigation.replace("Login"); // Use replace to clear stack
   };
 
   return (
     <Container>
-      <Header />
-      <AvatarContainer>
-        <Avatar source={customImage ? { uri: customImage } : avatars[selectedAvatarIndex]} />
-      </AvatarContainer>
+      <ScrollView contentContainerStyle={{ alignItems: 'center', width: '100%' }} showsVerticalScrollIndicator={false}>
+        <Header />
+        <AvatarContainer>
+          <Avatar source={customImage ? { uri: customImage } : avatars[selectedAvatarIndex]} />
+        </AvatarContainer>
 
-      <TouchableOpacity onPress={() => setShowSheet(true)}>
-        <EditText>Edit</EditText>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowSheet(true)}>
+          <EditText>Edit Photo</EditText>
+        </TouchableOpacity>
 
-      <Content>
-        <FieldBox><Label>Name</Label><Value>{name}</Value></FieldBox>
-        <FieldBox><Label>Email</Label><Value>{email}</Value></FieldBox>
-        <LogoutButton onPress={() => setLogoutPopup(true)}><LogoutText>Logout</LogoutText></LogoutButton>
-      </Content>
+        <Content>
+          {/* Identity Section */}
+          <SectionLabel>Personal Info</SectionLabel>
+          <FieldBox>
+            <Label>Name</Label>
+            <Value>{name}</Value>
+          </FieldBox>
+          <FieldBox>
+            <Label>Email</Label>
+            <Value>{email}</Value>
+          </FieldBox>
 
-      {/* BACKGROUND SHEET */}
-      <ImagePickerSheet
-        visible={showSheet}
-        onClose={() => setShowSheet(false)}
-        onGallery={pickFromGallery}
-        onAvatar={pickAvatar}
-        onRemove={() => setRemovePopup(true)}
-        onCamera={openCamera}
-      />
+          {/* Address Section */}
+          <SectionLabel>Saved Address</SectionLabel>
+          <AddressCard>
+            <AddressHeader>
+              <Ionicons name="location-outline" size={20} color="#0b74e5" />
+              <AddressTitle>Current Location</AddressTitle>
+            </AddressHeader>
+            
+            {address ? (
+              <AddressBody>
+                <AddressText>{address.street || "No street info"}</AddressText>
+                <AddressText>{address.city}, {address.state}</AddressText>
+                <PincodeBadge>
+                   <PincodeText>PIN: {address.pincode}</PincodeText>
+                </PincodeBadge>
+              </AddressBody>
+            ) : (
+              <AddressText style={{ color: '#aaa', fontStyle: 'italic', marginTop: 10 }}>
+                No address provided.
+              </AddressText>
+            )}
+          </AddressCard>
 
-      {/* TOP SHEET (Stacked) */}
-      <AvatarPickerSheet
-        visible={avatarSheet}
-        onClose={() => setAvatarSheet(false)}
-        onSelect={handleAvatarSelect}
-        selectedIndex={selectedAvatarIndex}
-        isNested={true} // Only this sheet gets the transparent overlay
-      />
+          <LogoutButton onPress={() => setLogoutPopup(true)}>
+            <LogoutText>Logout</LogoutText>
+          </LogoutButton>
+        </Content>
+      </ScrollView>
 
+      {/* MODALS & SHEETS */}
+      <ImagePickerSheet visible={showSheet} onClose={() => setShowSheet(false)} onGallery={pickFromGallery} onAvatar={pickAvatar} onRemove={() => setRemovePopup(true)} onCamera={openCamera} />
+      <AvatarPickerSheet visible={avatarSheet} onClose={() => setAvatarSheet(false)} onSelect={handleAvatarSelect} selectedIndex={selectedAvatarIndex} isNested={true} />
       <ActionPopup visible={logoutPopup} message="Logout?" confirmText="Logout" onConfirm={handleLogout} onClose={() => setLogoutPopup(false)} />
       <ActionPopup visible={removePopup} message="Remove photo?" confirmText="Remove" onConfirm={handleRemovePhoto} onClose={() => setRemovePopup(false)} />
     </Container>
   );
 }
 
+/* STYLES */
+
 const Container = styled.View`
   flex: 1;
   background-color: #eaf3ff;
-  align-items: center;
 `;
 
 const Header = styled.View`
   width: 100%;
-  height: 80px;
+  height: 100px;
   background-color: #0b74e5;
 `;
 
 const AvatarContainer = styled.View`
-  margin-top: -50px;
+  margin-top: -60px;
   width: 120px;
   height: 120px;
   border-radius: 60px;
   overflow: hidden;
   border-width: 4px;
   border-color: #ffffff;
-  elevation: 5;
+  elevation: 8;
+  background-color: #fff;
 `;
 
 const Avatar = styled(Image)`
@@ -206,7 +229,8 @@ const Avatar = styled(Image)`
 const EditText = styled.Text`
   color: #0b74e5;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
+  margin-top: 10px;
   margin-bottom: 15px;
 `;
 
@@ -215,36 +239,98 @@ const Content = styled.View`
   padding: 20px;
 `;
 
+const SectionLabel = styled.Text`
+  font-size: 14px;
+  color: #0b74e5;
+  font-weight: bold;
+  margin-bottom: 10px;
+  margin-left: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
 const FieldBox = styled.View`
-  background-color: #f2f8ff;
+  background-color: #fff;
   border-radius: 14px;
   padding: 15px;
   margin-bottom: 15px;
-  elevation: 3;
+  elevation: 2;
+  border-left-width: 5px;
+  border-left-color: #0b74e5;
 `;
 
 const Label = styled.Text`
-  font-size: 12px;
+  font-size: 11px;
   color: #777;
+  text-transform: uppercase;
 `;
 
 const Value = styled.Text`
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  margin-top: 5px;
+  color: #333;
+  margin-top: 3px;
+`;
+
+const AddressCard = styled.View`
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  elevation: 3;
+`;
+
+const AddressHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  border-bottom-width: 1px;
+  border-bottom-color: #f0f0f0;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+`;
+
+const AddressTitle = styled.Text`
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-left: 8px;
+`;
+
+const AddressBody = styled.View``;
+
+const AddressText = styled.Text`
+  font-size: 15px;
+  color: #555;
+  line-height: 22px;
+`;
+
+const PincodeBadge = styled.View`
+  background-color: #eaf3ff;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+`;
+
+const PincodeText = styled.Text`
+  color: #0b74e5;
+  font-weight: bold;
+  font-size: 13px;
 `;
 
 const LogoutButton = styled.TouchableOpacity`
-  border-width: 1px;
-  border-color: #0b74e5;
+  background-color: #fff;
+  border-width: 1.5px;
+  border-color: #ff4d4d;
   padding: 14px;
   border-radius: 12px;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom: 30px;
 `;
 
 const LogoutText = styled.Text`
-  color: #0b74e5;
+  color: #ff4d4d;
   font-size: 16px;
   font-weight: bold;
 `;
