@@ -6,12 +6,15 @@ import HelpScreen from "../screen/HelpScreen";
 import TodoScreen from "../screen/TodoScreen";
 import SettingScreen from "../screen/SettingScreen";
 import ScanScreen from "../screen/ScanScreen";
-import PaginationScreen from "../screen/PaginationScreen"; // Import Pagination Screen
+import PaginationScreen from "../screen/PaginationScreen";
+import FloatingButton from "../components/FloatingButton/FloatingButtonHome";
+
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
   return (
+    <>  
     <Drawer.Navigator screenOptions={{ headerShown: false }}>
       <Drawer.Screen
         name="Home"
@@ -40,5 +43,8 @@ export default function DrawerNavigator() {
         component={PaginationScreen} // Added Drawer Screen
       />
     </Drawer.Navigator>
+    <FloatingButton />
+        </>
+
   );
 }

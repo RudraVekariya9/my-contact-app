@@ -9,6 +9,9 @@ import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { FloatingButtonProvider } from "./context/FloatingButtonContext";
+
 import useNotificationHandler from "./services/notifications/notificationHandler";
 
 // NOTIFICATION CONTROL
@@ -69,10 +72,14 @@ export default function App() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        <NavigationContainer>
-          <AuthStack />
-        </NavigationContainer>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+         <FloatingButtonProvider> 
+           <NavigationContainer>
+            <AuthStack />
+          </NavigationContainer>
+         </FloatingButtonProvider>
+        </GestureHandlerRootView>
       </SafeAreaProvider>
     </Provider>
   );
-}
+} 

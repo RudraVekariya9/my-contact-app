@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, Switch, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FloatingButtonContext } from "../../context/FloatingButtonContext";
 
 export default function SettingHome() {
   const [isEnabled, setIsEnabled] = useState(true);
+  const { enabled, toggleFloating } = useContext(FloatingButtonContext);
 
-  // 🔹 Load saved value on mount
+  // 🔹 Load notification setting
   useEffect(() => {
     const loadSetting = async () => {
       try {
         const savedValue = await AsyncStorage.getItem("notificationsEnabled");
-
         if (savedValue !== null) {
           setIsEnabled(JSON.parse(savedValue));
         }
@@ -22,7 +23,7 @@ export default function SettingHome() {
     loadSetting();
   }, []);
 
-  // 🔹 Toggle + Save
+  // 🔹 Notification toggle
   const toggleSwitch = async () => {
     try {
       const newValue = !isEnabled;
@@ -39,9 +40,11 @@ export default function SettingHome() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
-        <Text style={styles.label}>Notifications</Text>
 
+      {/* 🔔 NOTIFICATIONS SECTION */}
+      <Text style={styles.sectionTitle}>Notifications</Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Enable Notifications</Text>
         <Switch
           value={isEnabled}
           onValueChange={toggleSwitch}
@@ -49,6 +52,19 @@ export default function SettingHome() {
           thumbColor="#ffffff"
         />
       </View>
+
+      {/* 🏠 HOME SECTION */}
+      <Text style={styles.sectionTitle}>Home</Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Floating Button</Text>
+        <Switch
+          value={enabled}
+          onValueChange={toggleFloating}
+          trackColor={{ false: "#ccc", true: "#0b74e5" }}
+          thumbColor="#ffffff"
+        />
+      </View>
+
     </View>
   );
 }
@@ -59,6 +75,15 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
+
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#6b7280",
+    marginBottom: 8,
+    marginTop: 15,
+  },
+
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -67,7 +92,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     elevation: 2,
+    marginBottom: 10,
   },
+
   label: {
     fontSize: 16,
     fontWeight: "600",

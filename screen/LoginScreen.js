@@ -83,7 +83,7 @@ await logEvent(analyticsInstance, 'login_success');
         console.log("TOKEN SAVED");
       }
 
-      navigation.replace("App");
+      navigation.replace("Welcome");
     } catch (error) {
       alert(error.message);
     }
