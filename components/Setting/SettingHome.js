@@ -7,7 +7,7 @@ export default function SettingHome() {
   const [isEnabled, setIsEnabled] = useState(true);
   const { enabled, toggleFloating } = useContext(FloatingButtonContext);
 
-  // 🔹 Load notification setting
+  
   useEffect(() => {
     const loadSetting = async () => {
       try {
@@ -23,7 +23,7 @@ export default function SettingHome() {
     loadSetting();
   }, []);
 
-  // 🔹 Notification toggle
+  
   const toggleSwitch = async () => {
     try {
       const newValue = !isEnabled;
@@ -41,7 +41,7 @@ export default function SettingHome() {
   return (
     <View style={styles.container}>
 
-      {/* 🔔 NOTIFICATIONS SECTION */}
+      
       <Text style={styles.sectionTitle}>Notifications</Text>
       <View style={styles.row}>
         <Text style={styles.label}>Enable Notifications</Text>
@@ -53,7 +53,7 @@ export default function SettingHome() {
         />
       </View>
 
-      {/* 🏠 HOME SECTION */}
+  
       <Text style={styles.sectionTitle}>Home</Text>
       <View style={styles.row}>
         <Text style={styles.label}>Floating Button</Text>

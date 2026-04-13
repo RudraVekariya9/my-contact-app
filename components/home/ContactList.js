@@ -4,28 +4,27 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  View,
+  Text,
 } from "react-native";
 import styled from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
 import { useContactContext } from "../../context/ContactContext";
+import { Swipeable } from "react-native-gesture-handler";
 
 export default function ContactList() {
   const navigation = useNavigation();
   const { filteredContacts, loading, searchLoading } = useContactContext();
-
   const sectionListRef = useRef();
 
-  //  GROUP CONTACTS
+  // GROUP CONTACTS
   const groupContacts = (contacts) => {
     const grouped = {};
-
     contacts.forEach((contact) => {
       const letter = contact.name[0].toUpperCase();
-
       if (!grouped[letter]) {
         grouped[letter] = [];
       }
-
       grouped[letter].push(contact);
     });
 
@@ -36,14 +35,10 @@ export default function ContactList() {
   };
 
   const sections = groupContacts(filteredContacts);
-
-  //  A-Z LIST
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-  //  SCROLL TO LETTER
   const scrollToLetter = (letter) => {
     const index = sections.findIndex((s) => s.title === letter);
-
     if (index !== -1) {
       sectionListRef.current.scrollToLocation({
         sectionIndex: index,
@@ -52,13 +47,10 @@ export default function ContactList() {
     }
   };
 
-  //  AUTO SCROLL ON SEARCH
   useEffect(() => {
     if (filteredContacts.length > 0) {
       const firstLetter = filteredContacts[0].name[0].toUpperCase();
-
       const index = sections.findIndex((s) => s.title === firstLetter);
-
       if (index !== -1) {
         sectionListRef.current.scrollToLocation({
           sectionIndex: index,
@@ -68,9 +60,21 @@ export default function ContactList() {
     }
   }, [filteredContacts]);
 
+  // Swipe UI Actions
+  const renderLeftActions = () => (
+    <ActionLeft>
+      <ActionText>Chat</ActionText>
+    </ActionLeft>
+  );
+
+  const renderRightActions = () => (
+    <ActionRight>
+      <ActionText>Call</ActionText>
+    </ActionRight>
+  );
+
   return (
     <Container>
-
       {(loading || searchLoading) && (
         <LoaderContainer>
           <ActivityIndicator size="large" color="#0b74e5" />
@@ -80,38 +84,56 @@ export default function ContactList() {
       <SectionList
         ref={sectionListRef}
         sections={sections}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
         showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => {
+          // Local ref for this specific row
+          let rowRef = null;
 
-        renderItem={({ item }) => (
-          <Card
-            activeOpacity={0.8}
-            onPress={() =>
-              navigation.navigate("ContactDetails", {
-                name: item.name,
-                role: item.role,
-                phone: item.phone,
-                image: item.image,
-              })
-            }
-          >
-            {item.image && (
-              <ProfileImage source={{ uri: item.image }} />
-            )}
+          const closeAndNavigate = (screen, params) => {
+            if (rowRef) rowRef.close(); // Close the swipe before navigating
+            navigation.navigate(screen, params);
+          };
 
-            <TextContainer>
-              <Name>{item.name}</Name>
-              <Role>{item.role}</Role>
-            </TextContainer>
-          </Card>
-        )}
-
+          return (
+            <Swipeable
+              ref={(ref) => (rowRef = ref)}
+              renderLeftActions={renderLeftActions}
+              renderRightActions={renderRightActions}
+              onSwipeableOpen={(direction) => {
+                if (direction === "left") {
+                  closeAndNavigate("Chat", { contact: item });
+                }
+                if (direction === "right") {
+                  closeAndNavigate("VideoCall", { contact: item });
+                }
+              }}
+            >
+              <Card
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate("ContactDetails", {
+                    name: item.name,
+                    role: item.role,
+                    phone: item.phone,
+                    image: item.image,
+                  })
+                }
+              >
+                {item.image && <ProfileImage source={{ uri: item.image }} />}
+                <TextContainer>
+                  <Name>{item.name}</Name>
+                  <Role>{item.role}</Role>
+                </TextContainer>
+              </Card>
+            </Swipeable>
+          );
+        }}
         renderSectionHeader={({ section: { title } }) => (
           <HeaderContainer>
             <HeaderText>{title}</HeaderText>
           </HeaderContainer>
         )}
-
         ItemSeparatorComponent={() => <Divider />}
       />
 
@@ -126,7 +148,6 @@ export default function ContactList() {
           </TouchableOpacity>
         ))}
       </Sidebar>
-
     </Container>
   );
 }
@@ -135,6 +156,7 @@ export default function ContactList() {
 
 const Container = styled.View`
   flex: 1;
+  background-color: white;
 `;
 
 const LoaderContainer = styled.View`
@@ -178,7 +200,6 @@ const Divider = styled.View`
   margin-left: 73px;
 `;
 
-
 const HeaderContainer = styled.View`
   background-color: #e6f2ff;
   padding: 3px 15px;
@@ -189,7 +210,6 @@ const HeaderText = styled.Text`
   font-weight: 600;
   color: #0b74e5;
 `;
-
 
 const Sidebar = styled.View`
   position: absolute;
@@ -203,4 +223,24 @@ const Letter = styled.Text`
   font-size: 10px;
   padding: 2px;
   color: #0b74e5;
+`;
+
+const ActionLeft = styled.View`
+  width: 100px;
+  justify-content: center;
+  background-color: #4caf50;
+  padding-left: 20px;
+`;
+
+const ActionRight = styled.View`
+  width: 100px;
+  justify-content: center;
+  align-items: flex-end;
+  background-color: #2196f3;
+  padding-right: 20px;
+`;
+
+const ActionText = styled.Text`
+  color: white;
+  font-weight: bold;
 `;

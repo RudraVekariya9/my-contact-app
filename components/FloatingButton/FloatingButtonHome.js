@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { withSpring } from "react-native-reanimated";
+import { Easing } from "react-native-reanimated";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,21 +23,21 @@ export default function FloatingButtonHome() {
   const translateY = useSharedValue(0);
   const rotation = useSharedValue(0);
 
-  // 🔹 Drag
+
   const onGestureEvent = (event) => {
     translateX.value = event.nativeEvent.translationX;
     translateY.value = event.nativeEvent.translationY;
   };
 
   const onEnd = () => {
-    posX.value += translateX.value;
-    posY.value += translateY.value;
+   posX.value = posX.value + translateX.value;
+   posY.value = posY.value + translateY.value;
 
     translateX.value = 0;
     translateY.value = 0;
   };
 
-  // 🔹 Animation
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: posX.value + translateX.value },
@@ -45,12 +46,12 @@ export default function FloatingButtonHome() {
     ],
   }));
 
-  // 🔹 Spin on tap
+
   const handlePress = () => {
     rotation.value = 0;
 
     rotation.value = withRepeat(
-      withTiming(360, { duration: 500 }),
+      withTiming(360, { duration: 500, easing: Easing.out(Easing.cubic) }),
       4,
       false
     );
@@ -60,7 +61,7 @@ export default function FloatingButtonHome() {
     }, 2000);
   };
 
-  // 🔥 CONTROL VISIBILITY
+
   if (!enabled) return null;
 
   return (

@@ -63,21 +63,21 @@ export default function WelcomeScreen() {
     }
   };
 
-  // 🔁 MORE ROTATION (4 spins)
+
   const rotate = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "1440deg"],
   });
 
   const handlePress = () => {
-    // 🌑 Background dark
+    
     Animated.timing(bgDark, {
       toValue: 1,
       duration: 500,
       useNativeDriver: false,
     }).start();
 
-    // 🌀 Card animation (FAST)
+    
     Animated.parallel([
       Animated.timing(exitScale, {
         toValue: 0,
@@ -97,7 +97,7 @@ export default function WelcomeScreen() {
       }),
     ]).start();
 
-    // 🔵 Circle morph
+  
     Animated.timing(borderAnim, {
       toValue: 200,
       duration: 500,
@@ -157,12 +157,12 @@ const AnimatedContainer = styled(Animated.View)`
 `;
 
 const AnimatedWrapper = styled(Animated.View)`
-  width: 80%; /* 🔥 reduced */
+  width: 80%;
 `;
 
 const AnimatedCard = styled(Animated.View)`
   background-color: #ffffff;
-  padding: 28px 20px; /* 🔥 less side padding */
+  padding: 28px 20px; 
   align-items: center;
   elevation: 10;
 `;
@@ -202,7 +202,7 @@ const Tagline = styled.Text`
   color: #9ca3af;
   margin-top: 8px;
   text-align: center;
-  max-width: 220px; /* 🔥 key fix */
+  max-width: 220px; 
 `;
 
 const Button = styled.TouchableOpacity`
