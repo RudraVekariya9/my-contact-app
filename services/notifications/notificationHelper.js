@@ -1,25 +1,38 @@
 import * as Notifications from "expo-notifications";
 import { saveNotification } from "./notificationStorage";
+
+const generateId = () => Date.now().toString();
+
 export async function scheduleTodoNotification(todoTitle, todoId) {
-  const notificationData = {
-    title: "Todo Completed 🎉",
-    body: `${todoTitle} completed`,
-    time: new Date().toISOString(),
-  };
+  try {
+    const notificationId = generateId();
 
-  //  SAVE IMMEDIATELY (IMPORTANT)
-  
+    const scheduledTime = Date.now() + 10000;
 
-  //  Schedule notification
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      ...notificationData,
-      data: { todoId },
-    },
-    trigger: {
-      type : "timeInterval",
-      seconds: 60, // or 120
-      repeats: false, 
-    },
-  });
+    await saveNotification({
+      id: notificationId,
+      title: "Todo Completed 🎉",
+      body: `${todoTitle} completed`,
+      time: new Date().toISOString(),
+      scheduledTime,
+      todoId,
+      isRead: false,
+    });
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Todo Completed 🎉",
+        body: `${todoTitle} completed`,
+        data: { notificationId, todoId },
+        categoryIdentifier: "todo-actions",
+      },
+      trigger: {
+        type: "timeInterval",
+        seconds: 10,
+      },
+    });
+
+  } catch (error) {
+    console.log("Notification error:", error);
+  }
 }

@@ -1,107 +1,79 @@
 import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  getMessaging,
-  onMessage,
-  requestPermission,
-  onNotificationOpenedApp,
-  getInitialNotification
-} from "@react-native-firebase/messaging";
+import { updateUnreadCount } from "./notificationStorage";
 
-import { getApp } from "@react-native-firebase/app";
-import { getAuth } from "firebase/auth";
-import { Alert } from "react-native";
-import { navigate } from "../../navigation/utils/navigationRef";
+//  MARK SINGLE AS READ
+const markSingleAsRead = async (notificationId) => {
+  try {
+    const data = await AsyncStorage.getItem("APP_NOTIFICATIONS");
+    const list = data ? JSON.parse(data) : [];
 
-import { saveNotification } from "./notificationStorage";
+    const updated = list.map(item => {
+      if (item.id === notificationId) {
+        return { ...item, isRead: true };
+      }
+      return item;
+    });
+
+    await AsyncStorage.setItem("APP_NOTIFICATIONS", JSON.stringify(updated));
+
+    console.log(" Marked as read:", notificationId);
+
+  } catch (error) {
+    console.log("Mark single read error:", error);
+  }
+};
 
 export default function useNotificationHandler() {
 
-  // 🔹 Permission
   useEffect(() => {
-    const requestExpoPermission = async () => {
-      if (Device.isDevice) {
-        await Notifications.requestPermissionsAsync();
-      }
-    };
 
-    requestExpoPermission();
-  }, []);
+    //  HANDLE ACTION BUTTONS + TAP
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      async (response) => {
 
-  // 🔹 Foreground FCM
-  useEffect(() => {
-    const setupFCM = async () => {
-      try {
-        const messagingInstance = getMessaging(getApp());
+        const actionId = response.actionIdentifier;
 
-        await requestPermission(messagingInstance);
+        const notification = response.notification;
+        const notificationIdFromExpo = notification.request.identifier;
 
-        onMessage(messagingInstance, async remoteMessage => {
-          if (remoteMessage?.notification) {
-            onMessage(messagingInstance, async remoteMessage => {
-            // keep empty OR just process silently
-            });
-          }
-        });
-      } catch {}
-    };
+        const data = notification.request.content.data;
+        const customNotificationId = data.notificationId;
 
-    setupFCM();
-  }, []);
+        console.log(" Action:", actionId);
 
-  // 🔹 Click handling
-  useEffect(() => {
-    const messagingInstance = getMessaging(getApp());
+        //  MARK AS READ BUTTON
+        if (actionId === "mark-as-read") {
+          await markSingleAsRead(customNotificationId);
 
-    const unsubscribe = onNotificationOpenedApp(
-      messagingInstance,
-      remoteMessage => {
-        const todoId = remoteMessage?.data?.todoId;
+          //  UPDATE UNREAD COUNT
+          await updateUnreadCount();
 
-        if (todoId) {
-          navigate("TodoScreen", { todoId });
+          console.log(" Mark as read from notification");
         }
+
+        //  OPEN APP BUTTON
+        if (actionId === "open-app") {
+          console.log(" Open App clicked");
+        }
+
+        //  DEFAULT TAP (user taps notification body)
+        if (actionId === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+          console.log(" Notification tapped");
+        }
+
+        //  REMOVE NOTIFICATION FROM TRAY
+        await Notifications.dismissNotificationAsync(notificationIdFromExpo);
+
       }
     );
 
-    getInitialNotification(messagingInstance).then(remoteMessage => {
-      if (remoteMessage) {
-        const todoId = remoteMessage?.data?.todoId;
+    return () => {
+      subscription.remove();
+    };
 
-        if (todoId) {
-          navigate("TodoScreen", { todoId });
-        }
-      }
-    });
-
-    return unsubscribe;
   }, []);
 
-  // 🔹 Save notifications
-  useEffect(() => {
-    const subscription = Notifications.addNotificationReceivedListener(
-      async (notification) => {
-        try {
-          const value = await AsyncStorage.getItem("notificationsEnabled");
-          const enabled = JSON.parse(value || "true");
-
-          if (!enabled) return;
-
-          const data = notification.request.content;
-
-          await saveNotification({
-            title: data.title,
-            body: data.body,
-            time: new Date().toISOString(),
-          });
-
-        } catch {}
-      }
-    );
-
-    return () => subscription.remove();
-  }, []);
 }

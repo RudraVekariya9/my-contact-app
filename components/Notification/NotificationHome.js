@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components/native";
 import { ScrollView, Text, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-
+import { updateUnreadCount } from "../../services/notifications/notificationStorage";
 import {
   getNotifications,
   resetUnreadCount,
@@ -45,33 +45,38 @@ export default function NotificationHome() {
   useFocusEffect(
     React.useCallback(() => {
       loadNotifications();
-      resetUnreadCount();
+      updateUnreadCount();
     }, [])
   );
+
+  //  TIME FILTER LOGIC
+  const currentTime = Date.now();
+
+  const visibleNotifications = notifications.filter(
+  (item) => Date.now() >= (item.scheduledTime || 0)
+);
 
   return (
     <ScrollContent showsVerticalScrollIndicator={false}>
 
       {/*  BUTTONS */}
-      {notifications.length > 0 && (
-        <>
-          <ActionRow>
-            <ReadButton onPress={handleMarkAllRead}>
-              <ReadText>Mark All as Read</ReadText>
-            </ReadButton>
+      {visibleNotifications.length > 0 && (
+        <ActionRow>
+          <ReadButton onPress={handleMarkAllRead}>
+            <ReadText>Mark All as Read</ReadText>
+          </ReadButton>
 
-            <ClearButton onPress={handleClearAll}>
-              <ClearText>Clear All</ClearText>
-            </ClearButton>
-          </ActionRow>
-        </>
+          <ClearButton onPress={handleClearAll}>
+            <ClearText>Clear All</ClearText>
+          </ClearButton>
+        </ActionRow>
       )}
 
       {/*  LIST */}
-      {notifications.length === 0 ? (
+      {visibleNotifications.length === 0 ? (
         <EmptyText>No notifications yet</EmptyText>
       ) : (
-        notifications.map((item, index) => (
+        visibleNotifications.map((item, index) => (
           <Card key={index}>
             <Title isRead={item.isRead}>{item.title}</Title>
             <Body isRead={item.isRead}>{item.body}</Body>

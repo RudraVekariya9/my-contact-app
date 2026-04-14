@@ -159,9 +159,9 @@ const TodoHome = () => {
           completed: newStatus
         });
 
-        // 🔔 Schedule notification after 5 min
+        //  Schedule notification after 5 min
         if (newStatus) {
-          await scheduleTodoNotification(item.title);
+          await scheduleTodoNotification(item.title, item.id);
         }
 
       } catch (error) {

@@ -14,7 +14,7 @@ import { FloatingButtonProvider } from "./context/FloatingButtonContext";
 
 import useNotificationHandler from "./services/notifications/notificationHandler";
 
-// NOTIFICATION CONTROL
+//  NOTIFICATION CONTROL (UNCHANGED)
 Notifications.setNotificationHandler({
   handleNotification: async () => {
     try {
@@ -52,9 +52,37 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [appReady, setAppReady] = useState(false);
 
+  //  THIS WILL HANDLE ACTION CLICKS (NEXT STEP)
   useNotificationHandler();
 
   useEffect(() => {
+
+    // STEP 2: ADD NOTIFICATION ACTION BUTTONS
+    const setupNotificationActions = async () => {
+      await Notifications.setNotificationCategoryAsync("todo-actions", [
+        
+        {
+          identifier: "mark-as-read",
+          buttonTitle: "Mark as Read",
+          options: {
+            opensAppToForeground: false, // background action
+          },
+        },
+
+        {
+          identifier: "open-app",
+          buttonTitle: "Open App",
+          options: {
+            opensAppToForeground: true, // opens app
+          },
+        },
+
+      ]);
+    };
+
+    setupNotificationActions();
+
+    
     const prepareApp = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -65,6 +93,7 @@ export default function App() {
     };
 
     prepareApp();
+
   }, []);
 
   if (!appReady) return null;
@@ -73,13 +102,13 @@ export default function App() {
     <Provider store={store}>
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-         <FloatingButtonProvider> 
-           <NavigationContainer>
-            <AuthStack />
-          </NavigationContainer>
-         </FloatingButtonProvider>
+          <FloatingButtonProvider>
+            <NavigationContainer>
+              <AuthStack />
+            </NavigationContainer>
+          </FloatingButtonProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </Provider>
   );
-} 
+}
