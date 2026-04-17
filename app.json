@@ -23,7 +23,12 @@
       "edgeToEdgeEnabled": true,
       "package": "com.anonymous.myapp",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE"]
+      "permissions": ["READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyB5KYBQqGk0DHZFGLl56p5cR5PV-pjKc9E"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

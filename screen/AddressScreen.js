@@ -1,43 +1,54 @@
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+  View,
+} from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
+import StepIndicator from "../components/StepIndicator";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { createUserProfile } from "../services/profileApi";
 
 const AddressScreen = ({ navigation, route }) => {
-  // Get data passed from SignupScreen
-  const { username, email, password } = route.params;
+  // ✅ UPDATED: receive birthdate also
+  const { username, email, password, birthdate } = route.params;
 
-  const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [stateName, setStateName] = useState('');
-  const [pincode, setPincode] = useState('');
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [pincode, setPincode] = useState("");
   const [loadingLocation, setLoadingLocation] = useState(false);
 
   const handleGetLocation = async () => {
     setLoadingLocation(true);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert("Permission Denied", "Location access is required for auto-fill.");
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Denied",
+          "Location access is required for auto-fill."
+        );
         return;
       }
       let location = await Location.getCurrentPositionAsync({});
-      let response = await Location.reverseGeocodeAsync({ 
-        latitude: location.coords.latitude, 
-        longitude: location.coords.longitude 
+      let response = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
       });
 
       if (response.length > 0) {
         const addr = response[0];
-        setStreet(`${addr.name || ''} ${addr.street || ''}`.trim());
-        setCity(addr.city || addr.district || '');
-        setStateName(addr.region || '');
-        setPincode(addr.postalCode || '');
+        setStreet(`${addr.name || ""} ${addr.street || ""}`.trim());
+        setCity(addr.city || addr.district || "");
+        setStateName(addr.region || "");
+        setPincode(addr.postalCode || "");
       }
     } catch (error) {
       Alert.alert("Error", "Failed to get location.");
@@ -53,10 +64,27 @@ const AddressScreen = ({ navigation, route }) => {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const addressData = { street, city, state: stateName, pincode };
-      
-      await createUserProfile(userCredential.user, username, email, addressData);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const addressData = {
+        street,
+        city,
+        state: stateName,
+        pincode,
+      };
+
+      // ✅ UPDATED: pass birthdate also
+      await createUserProfile(
+        userCredential.user,
+        username,
+        email,
+        addressData,
+        birthdate
+      );
 
       Alert.alert("Success", "Account created successfully!");
       navigation.replace("App");
@@ -66,26 +94,45 @@ const AddressScreen = ({ navigation, route }) => {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: "#e6f2ff", paddingVertical: 40 }}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          backgroundColor: "#e6f2ff",
+          paddingVertical: 40,
+        }}
+      >
         <Container>
           <Card>
+            <StepIndicator currentStep={3} />
             <Title>Address Details</Title>
-            <Subtitle>Step 2 of 2: Location</Subtitle>
+            <Subtitle>Step 3 of 3: Location</Subtitle>
 
-            <LocationButton onPress={handleGetLocation} disabled={loadingLocation}>
+            <LocationButton
+              onPress={handleGetLocation}
+              disabled={loadingLocation}
+            >
               {loadingLocation ? (
                 <ActivityIndicator color="#0b74e5" />
               ) : (
                 <>
                   <Ionicons name="location" size={18} color="#0b74e5" />
-                  <LocationButtonText>Auto-detect Location</LocationButtonText>
+                  <LocationButtonText>
+                    Auto-detect Location
+                  </LocationButtonText>
                 </>
               )}
             </LocationButton>
 
             <Label>Street / Area</Label>
-            <Input value={street} onChangeText={setStreet} placeholder="Apartment, Road name" />
+            <Input
+              value={street}
+              onChangeText={setStreet}
+              placeholder="Apartment, Road name"
+            />
 
             <Row>
               <View style={{ flex: 1, marginRight: 10 }}>
@@ -94,7 +141,11 @@ const AddressScreen = ({ navigation, route }) => {
               </View>
               <View style={{ flex: 1 }}>
                 <Label>Pincode</Label>
-                <Input value={pincode} onChangeText={setPincode} keyboardType="numeric" />
+                <Input
+                  value={pincode}
+                  onChangeText={setPincode}
+                  keyboardType="numeric"
+                />
               </View>
             </Row>
 

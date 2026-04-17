@@ -8,7 +8,7 @@ import SettingScreen from "../screen/SettingScreen";
 import ScanScreen from "../screen/ScanScreen";
 import PaginationScreen from "../screen/PaginationScreen";
 import FloatingButton from "../components/FloatingButton/FloatingButtonHome";
-
+import MapScreen from "../screen/MapScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -36,12 +36,19 @@ export default function DrawerNavigator() {
         name="Settings"
         component={SettingScreen}
       />
-      <Drawer.Screen name="Scan" component={ScanScreen} />
-
+      <Drawer.Screen 
+        name="Scan" 
+        component={ScanScreen}
+      />
       <Drawer.Screen 
         name="Pagination" 
         component={PaginationScreen} // Added Drawer Screen
       />
+      <Drawer.Screen
+        name="Map"
+        component={MapScreen}
+      />
+
     </Drawer.Navigator>
     <FloatingButton />
         </>

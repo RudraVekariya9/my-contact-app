@@ -17,6 +17,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 
+import { updateUserProfile } from "../../services/profileApi";
+
 export default function ProfileDetail() {
   const navigation = useNavigation();
 
@@ -32,6 +34,17 @@ export default function ProfileDetail() {
   const [avatarSheet, setAvatarSheet] = useState(false);
   const [selectedAvatarIndex, setSelectedAvatarIndex] = useState(null);
   const [customImage, setCustomImage] = useState(null);
+  const [birthdate, setBirthdate] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [editName, setEditName] = useState("");
+  const [editBirthdate, setEditBirthdate] = useState("");
+
+  // For new Address editing
+  const [editStreet, setEditStreet] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editState, setEditState] = useState("");
+  const [editPincode, setEditPincode] = useState("");
 
   useEffect(() => {
     loadUser();
@@ -48,7 +61,8 @@ export default function ProfileDetail() {
         const profile = await getUserProfile();
         if (profile) {
           setName(profile.username);
-          setAddress(profile.address); // Extract address object from Firestore
+          setAddress(profile.address);
+          setBirthdate(profile.birthdate); 
         } else {
           setName("No Name");
         }
@@ -134,6 +148,52 @@ export default function ProfileDetail() {
     navigation.replace("Login"); // Use replace to clear stack
   };
 
+  const handleSave = async () => {
+  try {
+    if (!editName) {
+      alert("Name is required");
+      return;
+    }
+
+    if (!editBirthdate) {
+      alert("Birthdate is required");
+      return;
+    }
+
+    if (!editStreet || !editCity || !editState || !editPincode) {
+      alert("Please fill all address fields");
+      return;
+    }
+    
+    const user = auth.currentUser;
+
+    const updatedData = {
+      username: editName,
+      birthdate: editBirthdate,
+      address: {
+        street: editStreet,
+        city: editCity,
+        state: editState,
+        pincode: editPincode,
+      },
+    };
+
+    //  Update Firebase
+    await updateUserProfile(user.uid, updatedData);
+
+    //  Update UI instantly
+    setName(editName);
+    setBirthdate(editBirthdate);
+    setAddress(updatedData.address);
+
+    //  Exit edit mode
+    setIsEditing(false);
+
+  } catch (error) {
+    console.log("Save error:", error);
+  }
+};
+
   return (
     <Container>
       <ScrollView contentContainerStyle={{ alignItems: 'center', width: '100%' }} showsVerticalScrollIndicator={false}>
@@ -148,38 +208,139 @@ export default function ProfileDetail() {
 
         <Content>
           {/* Identity Section */}
-          <SectionLabel>Personal Info</SectionLabel>
+          <SectionHeader>
+            <SectionLabel>Personal Info</SectionLabel>
+
+            <EditButton
+              onPress={() => {
+                  setIsEditing(true);
+                  setEditName(name);
+                  setEditBirthdate(birthdate);
+
+                  setEditStreet(address?.street || "");
+                  setEditCity(address?.city || "");
+                  setEditState(address?.state || "");
+                  setEditPincode(address?.pincode || "");
+                }}
+            >
+              <Ionicons name="create-outline" size={18} color="#0b74e5" />
+              <EditButtonText>Edit</EditButtonText>
+            </EditButton>
+          </SectionHeader>
+
+          {isEditing && (
+            <EditActions>
+              <ActionButton onPress={() => setIsEditing(false)}>
+                <ActionText>Cancel</ActionText>
+              </ActionButton>
+
+              <ActionButton primary onPress={handleSave}>
+                <ActionText primary>Save</ActionText>
+              </ActionButton>
+            </EditActions>
+          )}
+
           <FieldBox>
             <Label>Name</Label>
-            <Value>{name}</Value>
+
+            {isEditing ? (
+              <Input
+                value={editName}
+                onChangeText={setEditName}
+                placeholder="Enter name"
+              />
+            ) : (
+              <Value>{name}</Value>
+            )}
           </FieldBox>
           <FieldBox>
             <Label>Email</Label>
             <Value>{email}</Value>
           </FieldBox>
 
+          <FieldBox>
+            <Label>Birthdate</Label>
+
+            {isEditing ? (
+              <Input
+                value={editBirthdate}
+                onChangeText={setEditBirthdate}
+                placeholder="YYYY-MM-DD"
+              />
+            ) : (
+              <Value>{birthdate ? birthdate : "Not provided"}</Value>
+            )}
+          </FieldBox>
+
           {/* Address Section */}
           <SectionLabel>Saved Address</SectionLabel>
-          <AddressCard>
-            <AddressHeader>
-              <Ionicons name="location-outline" size={20} color="#0b74e5" />
-              <AddressTitle>Current Location</AddressTitle>
-            </AddressHeader>
-            
-            {address ? (
-              <AddressBody>
-                <AddressText>{address.street || "No street info"}</AddressText>
-                <AddressText>{address.city}, {address.state}</AddressText>
-                <PincodeBadge>
-                   <PincodeText>PIN: {address.pincode}</PincodeText>
-                </PincodeBadge>
-              </AddressBody>
-            ) : (
-              <AddressText style={{ color: '#aaa', fontStyle: 'italic', marginTop: 10 }}>
-                No address provided.
-              </AddressText>
-            )}
-          </AddressCard>
+
+            <AddressCard>
+              <AddressHeader>
+                <Ionicons name="location-outline" size={20} color="#0b74e5" />
+                <AddressTitle>Current Location</AddressTitle>
+              </AddressHeader>
+
+              {isEditing ? (
+                <AddressBody>
+
+                  <Input
+                    placeholder="Street"
+                    value={editStreet}
+                    onChangeText={setEditStreet}
+                  />
+
+                  <Input
+                    placeholder="City"
+                    value={editCity}
+                    onChangeText={setEditCity}
+                  />
+
+                  <Input
+                    placeholder="State"
+                    value={editState}
+                    onChangeText={setEditState}
+                  />
+
+                  <Input
+                    placeholder="Pincode"
+                    value={editPincode}
+                    onChangeText={setEditPincode}
+                    keyboardType="numeric"
+                  />
+
+                  <LocationButton>
+                    <Ionicons name="location" size={18} color="#0b74e5" />
+                    <LocationText>Use Current Location</LocationText>
+                  </LocationButton>
+
+                </AddressBody>
+              ) : (
+                <>
+                  {address ? (
+                    <AddressBody>
+                      <AddressText>{address.street || "No street info"}</AddressText>
+                      <AddressText>{address.city}, {address.state}</AddressText>
+
+                      <PincodeBadge>
+                        <PincodeText>PIN: {address.pincode}</PincodeText>
+                      </PincodeBadge>
+                    </AddressBody>
+                  ) : (
+                    <AddressText
+                      style={{
+                        color: "#aaa",
+                        fontStyle: "italic",
+                        marginTop: 10,
+                      }}
+                    >
+                      No address provided.
+                    </AddressText>
+                  )}
+                </>
+              )}
+            </AddressCard>
+
 
           <LogoutButton onPress={() => setLogoutPopup(true)}>
             <LogoutText>Logout</LogoutText>
@@ -333,4 +494,62 @@ const LogoutText = styled.Text`
   color: #ff4d4d;
   font-size: 16px;
   font-weight: bold;
+`;
+const SectionHeader = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 5px;
+`;
+
+const EditButton = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const EditButtonText = styled.Text`
+  color: #0b74e5;
+  font-weight: bold;
+  margin-left: 4px;
+  font-size: 14px;
+`;
+const Input = styled.TextInput`
+  border: 1px solid #0b74e5;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 5px;
+  color: #333;
+`;
+const EditActions = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 15px;
+`;
+
+const ActionButton = styled.TouchableOpacity`
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: ${(props) => (props.primary ? "#0b74e5" : "#eee")};
+`;
+
+const ActionText = styled.Text`
+  color: ${(props) => (props.primary ? "#fff" : "#333")};
+  font-weight: bold;
+`;
+const LocationButton = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 1.5px dashed #0b74e5;
+  border-radius: 10px;
+  background-color: #f0f7ff;
+  margin-top: 10px;
+`;
+
+const LocationText = styled.Text`
+  color: #0b74e5;
+  font-weight: bold;
+  margin-left: 8px;
 `;

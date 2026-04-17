@@ -1,9 +1,15 @@
 import { db, auth } from "../firebaseConfig";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
 /* CREATE PROFILE */
 
-export const createUserProfile = async (user, username, email, address) => {
+export const createUserProfile = async (
+  user,
+  username,
+  email,
+  address,
+  birthdate
+) => {
 
   if (!user) {
     console.log("No user found");
@@ -14,11 +20,12 @@ export const createUserProfile = async (user, username, email, address) => {
     await setDoc(doc(db, "users", user.uid), {
       username: username,
       email: email,
-      address: address, // This will store street, city, state, and pincode
+      address: address,
+      birthdate: birthdate,
       createdAt: new Date().toISOString()
     });
 
-    console.log("Profile saved! with address!");
+    console.log("Profile saved! with address + birthdate!");
   } catch (error) {
     console.log("Create profile error:", error);
     throw error;
@@ -45,5 +52,21 @@ export const getUserProfile = async () => {
   } catch (error) {
     console.log("Get profile error:", error);
     return null;
+  }
+};
+
+
+/* ✅ NEW: UPDATE PROFILE */
+
+export const updateUserProfile = async (userId, updatedData) => {
+  try {
+    const docRef = doc(db, "users", userId);
+
+    await updateDoc(docRef, updatedData);
+
+    console.log("Profile updated successfully!");
+  } catch (error) {
+    console.log("Update profile error:", error);
+    throw error;
   }
 };
