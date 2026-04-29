@@ -13,7 +13,7 @@ const BirthdayScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const { username, email, password } = route.params;
+  const { username, email, password,isGoogleUser } = route.params;
 
   const [birthdate, setBirthdate] = useState("");
 
@@ -62,6 +62,7 @@ const BirthdayScreen = () => {
       email,
       password,
       birthdate,
+      isGoogleUser, // Pass Google user flag if exists
     });
   };
 

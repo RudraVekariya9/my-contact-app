@@ -9,6 +9,7 @@ import ScanScreen from "../screen/ScanScreen";
 import PaginationScreen from "../screen/PaginationScreen";
 import FloatingButton from "../components/FloatingButton/FloatingButtonHome";
 import MapScreen from "../screen/MapScreen";
+import WeatherScreen from "../screen/WeatherScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -47,6 +48,10 @@ export default function DrawerNavigator() {
       <Drawer.Screen
         name="Map"
         component={MapScreen}
+      />
+      <Drawer.Screen
+        name="Weather"
+        component={WeatherScreen}
       />
 
     </Drawer.Navigator>

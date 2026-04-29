@@ -17,8 +17,9 @@ import { auth } from "../firebaseConfig";
 import { createUserProfile } from "../services/profileApi";
 
 const AddressScreen = ({ navigation, route }) => {
-  // ✅ UPDATED: receive birthdate also
-  const { username, email, password, birthdate } = route.params;
+  //  UPDATED: receive birthdate also
+  console.log("isGoogleUser:", isGoogleUser);
+  const { username, email, password, birthdate, isGoogleUser } = route.params;
 
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
@@ -58,40 +59,51 @@ const AddressScreen = ({ navigation, route }) => {
   };
 
   const handleFinalSignup = async () => {
-    if (!city || !pincode) {
-      Alert.alert("Error", "Please provide at least City and Pincode");
-      return;
-    }
+  if (!city || !pincode) {
+    Alert.alert("Error", "Please provide at least City and Pincode");
+    return;
+  }
 
-    try {
+  try {
+    let user;
+
+    if (isGoogleUser) {
+      // ✅ TEMP (since real Google not added yet)
+      user = { uid: "google-temp-user" };
+
+    } else {
+      // ✅ Normal signup
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
 
-      const addressData = {
-        street,
-        city,
-        state: stateName,
-        pincode,
-      };
-
-      // ✅ UPDATED: pass birthdate also
-      await createUserProfile(
-        userCredential.user,
-        username,
-        email,
-        addressData,
-        birthdate
-      );
-
-      Alert.alert("Success", "Account created successfully!");
-      navigation.replace("App");
-    } catch (error) {
-      Alert.alert("Signup Failed", error.message);
+      user = userCredential.user;
     }
-  };
+
+    const addressData = {
+      street,
+      city,
+      state: stateName,
+      pincode,
+    };
+
+    await createUserProfile(
+      user,
+      username,
+      email,
+      addressData,
+      birthdate
+    );
+
+    Alert.alert("Success", "Account created successfully!");
+    navigation.replace("App");
+
+  } catch (error) {
+    Alert.alert("Signup Failed", error.message);
+  }
+};
 
   return (
     <KeyboardAvoidingView

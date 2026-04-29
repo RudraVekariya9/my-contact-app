@@ -161,8 +161,7 @@ export default function App() {
 const styles = StyleSheet.create({
   forceUpdateOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.8)", // Darkens the background so user can't see the login page clearly
-    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.8)", 
     alignItems: "center",
   },
   alertCard: {

@@ -1,27 +1,89 @@
-import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 import StepIndicator from "../components/StepIndicator";
+
+
+import * as Google from "expo-auth-session/providers/google";
+import * as AuthSession from "expo-auth-session";
 
 const SignupScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  
   
 
+  
+  const [request, response, promptAsync] = Google.useAuthRequest({
+  // Provide the Android ID to stop the "must be defined" error
+  androidClientId: "493529142252-m8m83hqc9n3n2bo0rinc49sb2et2ppil.apps.googleusercontent.com",
+  
+  // Provide the Web IDs for the actual login flow
+  expoClientId: "493529142252-srb3cdh4at5bla9o51dqge7g745g9jen.apps.googleusercontent.com",
+  webClientId: "493529142252-srb3cdh4at5bla9o51dqge7g745g9jen.apps.googleusercontent.com",
+  
+  // ADD THIS LINE: This tells the hook exactly where to return
+  redirectUri: AuthSession.makeRedirectUri({
+    useProxy: true,
+  }),
+});
+
+  
+  useEffect(() => {
+  if (response?.type === "success") {
+    const { authentication } = response;
+    // This gives you the token to fetch user details
+    getUserInfo(authentication.accessToken);
+  } else if (response?.type === "error") {
+    Alert.alert("Login Failed", "Something went wrong with Google Sign-in");
+  }
+}, [response]);
+
+    const getUserInfo = async (token) => {
+    try {
+      const res = await fetch(
+        "https://www.googleapis.com/userinfo/v2/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const user = await res.json();
+
+      console.log("Google User:", user);
+
+      // Navigate to next screen
+      navigation.navigate("BirthdayScreen", {
+        username: user.name,
+        email: user.email,
+        isGoogleUser: true,
+      });
+    } catch (error) {
+      console.log("User fetch error:", error);
+    }
+  };
+
+  
   const handleNext = () => {
     if (!username || !email || !password) {
       Alert.alert("Error", "Please fill in all credentials");
       return;
     }
 
-    // ✅ CHANGED: Navigate to BirthdayScreen instead of AddressScreen
     navigation.navigate("BirthdayScreen", {
       username,
       email,
       password,
+      isGoogleUser: false,
     });
   };
 
@@ -40,6 +102,7 @@ const SignupScreen = ({ navigation }) => {
         <Container>
           <Card>
             <StepIndicator currentStep={1} />
+
             <Title>Create Account</Title>
             <Subtitle>Step 1 of 3: Basic Info</Subtitle>
 
@@ -79,9 +142,22 @@ const SignupScreen = ({ navigation }) => {
             <Button onPress={handleNext}>
               <ButtonText>Next: Birthdate</ButtonText>
             </Button>
+
+            
+            <GoogleButton 
+  disabled={!request} 
+  onPress={() => {
+    promptAsync({ 
+      useProxy: true 
+    });
+  }}
+>
+              <Ionicons name="logo-google" size={20} color="#DB4437" />
+              <GoogleText>Continue with Google</GoogleText>
+            </GoogleButton>
           </Card>
         </Container>
-      </ScrollView>
+      </ScrollView> 
     </KeyboardAvoidingView>
   );
 };
@@ -99,10 +175,6 @@ const Card = styled.View`
   border-radius: 20px;
   padding: 24px;
   elevation: 5;
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.1;
-  shadow-radius: 4px;
 `;
 
 const Title = styled.Text`
@@ -114,29 +186,21 @@ const Title = styled.Text`
 
 const Subtitle = styled.Text`
   text-align: center;
-  color: #666666;
-  margin-top: 5px;
+  color: #666;
   margin-bottom: 20px;
-  font-size: 14px;
 `;
 
 const Label = styled.Text`
   margin-top: 15px;
   color: #0b74e5;
   font-weight: 600;
-  font-size: 13px;
 `;
 
-const Input = styled.TextInput.attrs({
-  placeholderTextColor: "#a6b8d1",
-})`
+const Input = styled.TextInput`
   border: 1px solid #0b74e5;
   padding: 12px;
   border-radius: 10px;
-  background-color: #f2f8ff;
   margin-top: 5px;
-  color: #0f172a;
-  font-size: 15px;
 `;
 
 const PasswordContainer = styled.View`
@@ -144,17 +208,12 @@ const PasswordContainer = styled.View`
   align-items: center;
   border: 1px solid #0b74e5;
   border-radius: 10px;
-  background-color: #f2f8ff;
   margin-top: 5px;
 `;
 
-const PasswordInput = styled.TextInput.attrs({
-  placeholderTextColor: "#a6b8d1",
-})`
+const PasswordInput = styled.TextInput`
   flex: 1;
   padding: 12px;
-  color: #0f172a;
-  font-size: 15px;
 `;
 
 const EyeButton = styled.TouchableOpacity`
@@ -170,7 +229,21 @@ const Button = styled.TouchableOpacity`
 `;
 
 const ButtonText = styled.Text`
-  color: #ffffff;
+  color: white;
   font-weight: bold;
-  font-size: 16px;
+`;
+
+const GoogleButton = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+`;
+
+const GoogleText = styled.Text`
+  margin-left: 10px;
+  font-weight: 600;
 `;

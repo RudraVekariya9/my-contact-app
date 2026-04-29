@@ -21,7 +21,7 @@ export const saveNotification = async (notification) => {
   }
 };
 
-// 🔥 UPDATE COUNT BASED ON VISIBLE ITEMS
+//  UPDATE COUNT BASED ON VISIBLE ITEMS
 export const updateUnreadCount = async () => {
   try {
     const data = await AsyncStorage.getItem(KEY);

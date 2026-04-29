@@ -27,7 +27,7 @@ export async function registerForPushNotificationsAsync() {
   // Get token
   const token = (await Notifications.getExpoPushTokenAsync()).data;
 
-  console.log("🔥 PUSH TOKEN:", token);
+  console.log(" PUSH TOKEN:", token);
 
   return token;
 }
